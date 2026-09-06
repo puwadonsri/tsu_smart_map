@@ -8,612 +8,300 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-.material-symbols-rounded {
-  font-family: 'Material Symbols Rounded';
-  font-weight: normal; font-style: normal;
-  font-size: 24px; line-height: 1;
-  display: inline-block; letter-spacing: normal;
-  white-space: nowrap; word-wrap: normal;
-  direction: ltr; -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-  user-select: none;
-}
-</style>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body {
-  font-family: 'Segoe UI', 'Roboto', Tahoma, sans-serif;
-  background: #0D47A1;
-  overflow: hidden;
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Roboto,Tahoma,sans-serif;overflow:hidden;height:100vh;width:100vw;background:#0D47A1}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;user-select:none}
 
-/* ── Splash Screen ── */
-#splash {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(180deg, #5D9CEC, #1976D2);
-  z-index: 9999; display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.5s;
-}
-#splash.fade-out { opacity: 0; pointer-events: none; }
-.splash-content { text-align: center; color: #fff; }
-.splash-logo { font-size: 96px; animation: splashBounce 1.4s ease-in-out infinite; color: #fff; }
-.splash-logo .material-symbols-rounded { font-size: 96px; }
-.splash-title { font-size: 36px; font-weight: 800; letter-spacing: 2px; margin-top: 14px; line-height: 1.2; }
-.splash-sub { font-size: 16px; opacity: 0.92; margin-top: 8px; }
-@keyframes splashBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
+/* Splash */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#5D9CEC,#1976D2);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash .icon{font-size:96px;color:#fff;animation:bounce 1.4s ease-in-out infinite}
+#splash h1{color:#fff;font-size:36px;font-weight:800;letter-spacing:2px;margin-top:14px;line-height:1.2}
+#splash p{color:rgba(255,255,255,.92);font-size:16px;margin-top:8px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-/* ── App layout (full screen map) ── */
-#app { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-#map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+/* Map */
+#map{position:fixed;inset:0;z-index:1}
 
-/* ── Top search bar ── */
-#topbar {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 998;
-  display: flex; align-items: center; gap: 10px;
-  padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 10px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.25), transparent);
-}
-#menu-btn {
-  width: 42px; height: 42px; background: #fff; border: none; border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; font-size: 20px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-#menu-btn .material-symbols-rounded { font-size: 24px; color: #0D47A1; }
-#search-box {
-  flex: 1; height: 42px; border: none; border-radius: 21px; padding: 0 16px 0 42px;
-  font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); outline: none;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat 14px center;
-}
+/* Top bar */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent)}
+.btn-menu,.btn-search{width:42px;height:42px;border:none;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff}
+.btn-menu .ms{font-size:24px;color:#0D47A1}
+.search{flex:1;height:42px;border:none;border-radius:21px;padding:0 16px 0 14px;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);outline:none}
+.search-wrap{flex:1;position:relative}
+.search-wrap .ms{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:20px;color:#999;pointer-events:none}
+.search-wrap input{width:100%;height:42px;border:none;border-radius:21px;padding:0 16px 0 42px;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);outline:none}
 
-/* ── Search results ── */
-#search-results {
-  position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
-  left: 14px; right: 14px; z-index: 997;
-  background: #fff; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  max-height: 320px; overflow-y: auto; display: none;
-}
-#search-results.active { display: block; }
-.search-item {
-  padding: 12px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid #f0f0f0;
-}
-.search-item:hover, .search-item:active { background: #e3f2fd; }
-.search-item:last-child { border-bottom: none; }
-.search-item .icon { font-size: 20px; }
-.search-item .name { font-size: 14px; font-weight: 600; }
-.search-item .cat { font-size: 11px; color: #888; }
+/* Search results */
+#sresults{position:fixed;top:62px;left:14px;right:14px;z-index:99;background:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-height:320px;overflow-y:auto;display:none}
+#sresults.on{display:block}
+.sri{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0}
+.sri:last-child{border-bottom:none}
+.sri:active{background:#e3f2fd}
+.sri .si{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sri .si .ms{font-size:18px;color:#fff}
+.sri .nm{font-size:14px;font-weight:600}
+.sri .ct{font-size:11px;color:#888}
 
-/* ── FAB Emergency ── */
-#fab-emergency {
-  position: absolute; right: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
-  z-index: 996; background: #E53935; color: #fff; border: none;
-  border-radius: 16px; padding: 10px 16px; cursor: pointer;
-  box-shadow: 0 4px 14px rgba(229,57,53,0.5);
-  display: flex; align-items: center; gap: 8px;
-  font-weight: 700; font-size: 12px; text-align: left;
-  animation: fabPulse 2s infinite;
-}
-@keyframes fabPulse {
-  0%, 100% { box-shadow: 0 4px 14px rgba(229,57,53,0.5); }
-  50% { box-shadow: 0 4px 24px rgba(229,57,53,0.8); }
-}
-#fab-emergency .phone { font-size: 22px; }
-#fab-emergency .phone .material-symbols-rounded { font-size: 24px; }
+/* FAB */
+#fab{position:fixed;right:14px;bottom:90px;z-index:100;background:#E53935;color:#fff;border:none;border-radius:16px;padding:10px 16px;cursor:pointer;box-shadow:0 4px 14px rgba(229,57,53,.5);display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;text-align:left;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 4px 14px rgba(229,57,53,.5)}50%{box-shadow:0 4px 24px rgba(229,57,53,.8)}}
+#fab .ms{font-size:24px}
 
-/* ── Bottom Bar ── */
-#bottombar {
-  position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
-  left: 14px; right: 14px; z-index: 996;
-  background: #fff; border-radius: 18px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  display: flex; padding: 14px 8px; gap: 4px; justify-content: space-around;
-}
-.shortcut-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 4px 8px; border: none; background: transparent; border-radius: 12px;
-  cursor: pointer; flex: 1; min-width: 0;
-}
-.shortcut-circle {
-  width: 46px; height: 46px; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; font-size: 22px; font-weight: 600;
-}
-.shortcut-circle .material-symbols-rounded { font-size: 26px; }
-.shortcut-label { font-size: 11px; font-weight: 700; white-space: nowrap; }
+/* Bottom bar */
+#bbar{position:fixed;bottom:12px;left:14px;right:14px;z-index:100;background:#fff;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.25);display:flex;padding:14px 8px;justify-content:space-around}
+.sbtn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 8px;border:none;background:transparent;border-radius:12px;cursor:pointer;flex:1}
+.sc{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sc .ms{font-size:26px}
+.slb{font-size:11px;font-weight:700;white-space:nowrap}
 
-/* ── Drawer (slide from left, app-style) ── */
-#drawer-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.45); z-index: 1000; opacity: 0;
-  pointer-events: none; transition: opacity 0.3s;
-}
-#drawer-overlay.active { opacity: 1; pointer-events: all; }
-#drawer {
-  position: absolute; top: 0; left: 0; width: 82%; max-width: 300px; height: 100%;
-  background: #fff; z-index: 1001; transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column;
-}
-#drawer.active { transform: translateX(0); }
-#drawer-header {
-  background: #0D47A1; color: #fff; padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 14px;
-}
-#drawer-header h2 { font-size: 18px; }
-#drawer-header p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
-#drawer-title {
-  padding: 14px 16px 6px; font-size: 15px; font-weight: 700;
-  display: flex; justify-content: space-between; align-items: center;
-}
-#drawer-title .close { background: none; border: none; font-size: 18px; cursor: pointer; color: #555; }
-#layer-filters { padding: 0 12px 16px; overflow-y: auto; }
-.layer-item {
-  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-  border-radius: 12px; margin-bottom: 6px;
-}
-.layer-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; flex-shrink: 0; }
-.layer-icon .material-symbols-rounded { font-size: 22px; color: #fff; }
-.layer-info { flex: 1; }
-.layer-name { font-weight: 600; font-size: 14px; }
-.layer-desc { font-size: 11px; color: #888; margin-top: 2px; }
-.toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle .slider {
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: #ccc; border-radius: 26px; cursor: pointer; transition: 0.3s;
-}
-.toggle .slider:before {
-  content: ''; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px;
-  background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: 0.3s;
-}
-.toggle input:checked + .slider { background: #1976D2; }
-.toggle input:checked + .slider:before { transform: translateX(20px); }
+/* Drawer overlay */
+#dov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s}
+#dov.on{opacity:1;pointer-events:all}
 
-/* ── Modal sheets ── */
-.sheet-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0;
-  pointer-events: none; transition: opacity 0.3s;
-}
-.sheet-overlay.active { opacity: 1; pointer-events: all; }
-.sheet {
-  position: absolute; bottom: 0; left: 0; width: 100%;
-  background: #fff; border-radius: 20px 20px 0 0;
-  padding: calc(env(safe-area-inset-bottom, 0px) + 18px) 18px 18px;
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  max-height: 82%; overflow-y: auto;
-}
-.sheet.active { transform: translateY(0); }
+/* Drawer */
+#drawer{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:300px;z-index:201;background:#fff;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+#drawer.on{transform:translateX(0)}
+#dhead{background:#0D47A1;color:#fff;padding:20px 16px 14px}
+#dhead h2{font-size:18px}
+#dhead p{font-size:11px;opacity:.85;margin-top:2px}
+.dtitle{padding:14px 16px 6px;font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.dtitle .x{background:none;border:none;font-size:18px;cursor:pointer;color:#555}
+#dfilters{padding:0 12px 16px;overflow-y:auto;flex:1}
+.li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;margin-bottom:6px}
+.lc{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lc .ms{font-size:22px;color:#fff}
+.lf{flex:1}
+.ln{font-weight:600;font-size:14px}
+.ld{font-size:11px;color:#888;margin-top:2px}
+.tg{position:relative;width:46px;height:26px;flex-shrink:0}
+.tg input{opacity:0;width:0;height:0}
+.tg .sl{position:absolute;inset:0;background:#ccc;border-radius:26px;cursor:pointer;transition:.3s}
+.tg .sl:before{content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.3s}
+.tg input:checked+.sl{background:#1976D2}
+.tg input:checked+.sl:before{transform:translateX(20px)}
 
-/* Emergency sheet */
-#emergency-sheet { background: linear-gradient(180deg, #E53935, #C62828); color: #fff; }
-#emergency-sheet .grabber { background: rgba(255,255,255,0.4); }
-.emergency-content { text-align: center; padding: 20px 4px 8px; }
-.emergency-content .phone-icon { font-size: 72px; margin-bottom: 12px; }
-.emergency-content .phone-label { font-size: 22px; margin-bottom: 4px; }
-.emergency-content .phone-number { font-size: 40px; font-weight: 800; letter-spacing: 2px; margin-bottom: 8px; }
-.emergency-content .phone-desc { font-size: 15px; opacity: 0.9; margin-bottom: 28px; }
-.emergency-content .call-btn {
-  display: block; background: #fff; color: #E53935; padding: 16px 0;
-  border-radius: 30px; font-size: 18px; font-weight: 800; text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
+/* Bottom sheet */
+.bov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s}
+.bov.on{opacity:1;pointer-events:all}
+.bsh{position:fixed;bottom:0;left:0;right:0;z-index:301;background:#fff;border-radius:20px 20px 0 0;padding:18px 18px 24px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:82vh;overflow-y:auto}
+.bsh.on{transform:translateY(0)}
+.grab{width:40px;height:4px;border-radius:4px;background:#ccc;margin:0 auto 10px}
+.stit{font-size:18px;font-weight:700;margin-bottom:14px;text-align:center}
 
-/* Market sheet */
-.market-card {
-  background: #f8f9fa; border-radius: 12px; padding: 14px;
-  margin-bottom: 12px; border-left: 4px solid;
-}
-.market-name { font-weight: 700; font-size: 16px; }
-.market-dist { font-size: 12px; color: #888; margin-top: 2px; }
-.market-detail { font-size: 13px; color: #555; margin-top: 4px; }
-.market-nav {
-  display: inline-flex; align-items: center; gap: 4px; color: #0D47A1;
-  font-size: 13px; font-weight: 600; margin-top: 8px; text-decoration: none;
-}
+/* Emergency */
+#esh{background:linear-gradient(180deg,#E53935,#C62828);color:#fff}
+#esh .grab{background:rgba(255,255,255,.4)}
+.ec{text-align:center;padding:20px 4px 8px}
+.ec .ms{font-size:72px}
+.ec .lb{font-size:22px;margin:12px 0 4px}
+.ec .ph{font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:8px}
+.ec .ds{font-size:15px;opacity:.9;margin-bottom:28px}
+.ec .cb{display:block;background:#fff;color:#E53935;padding:16px 0;border-radius:30px;font-size:18px;font-weight:800;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 
-/* Place info sheet */
-.place-category { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.place-cat-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.place-cat-icon .material-symbols-rounded { font-size: 22px; color: #fff; }
-.place-cat-name { font-size: 12px; color: #888; }
-.place-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-.place-detail { font-size: 14px; color: #555; margin-bottom: 18px; line-height: 1.5; }
-.place-nav-btn {
-  display: block; width: 100%; padding: 15px; background: #0D47A1; color: #fff;
-  border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-  cursor: pointer; text-align: center; text-decoration: none;
-}
+/* Market */
+.mc{background:#f8f9fa;border-radius:12px;padding:14px;margin-bottom:12px;border-left:4px solid}
+.mc .row{display:flex;align-items:center;gap:10px}
+.mc .mi{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mc .mi .ms{font-size:24px}
+.mn{font-weight:700;font-size:16px}
+.md{font-size:12px;color:#888;margin-top:2px}
+.mt{font-size:13px;color:#555;margin-top:4px}
+.mnav{display:inline-flex;align-items:center;gap:4px;color:#0D47A1;font-size:13px;font-weight:600;margin-top:8px;text-decoration:none}
 
-.grabber { width: 40px; height: 4px; border-radius: 4px; background: #ccc; margin: 0 auto 8px; }
-.sheet-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; text-align: center; }
+/* Place */
+.pc{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pci{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.pci .ms{font-size:22px;color:#fff}
+.pcn{font-size:12px;color:#888}
+.pn{font-size:18px;font-weight:700;margin-bottom:8px}
+.pd{font-size:14px;color:#555;margin-bottom:18px;line-height:1.5}
+.pnb{display:block;width:100%;padding:15px;background:#0D47A1;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
 </style>
 </head>
 <body>
 
-<!-- Splash -->
 <div id="splash">
-  <div class="splash-content">
-    <div class="splash-logo"><span class="material-symbols-rounded">map</span></div>
-    <div class="splash-title">TSU<br>Smart Map</div>
-    <div class="splash-sub">แผนที่อัจฉริยะ ม.ทักษิณ พัทลุง</div>
+  <div style="text-align:center">
+    <div class="icon"><span class="ms">map</span></div>
+    <h1>TSU<br>Smart Map</h1>
+    <p>แผนที่อัจฉริยะ ม.ทักษิณ พัทลุง</p>
   </div>
 </div>
 
-<!-- App -->
-<div id="app">
-  <div id="map"></div>
-
-  <!-- Top bar -->
-  <div id="topbar">
-    <button id="menu-btn"><span class="material-symbols-rounded">menu</span></button>
-    <input id="search-box" type="text" placeholder="ค้นหาสถานที่ ภายใน ม.ทักษิณ...">
+<div id="topbar">
+  <button class="btn-menu" id="menuBtn"><span class="ms">menu</span></button>
+  <div class="search-wrap">
+    <span class="ms">search</span>
+    <input class="search" id="sbox" type="text" placeholder="ค้นหาสถานที่ ภายใน ม.ทักษิณ...">
   </div>
-  <div id="search-results"></div>
+</div>
+<div id="sresults"></div>
 
-  <!-- FAB -->
-  <button id="fab-emergency">
-    <span class="phone"><span class="material-symbols-rounded">phone_in_talk</span></span>
-    <span>เบอร์ฉุกเฉิน<br><span id="fab-phone"></span></span>
-  </button>
+<button id="fab">
+  <span class="ms">phone_in_talk</span>
+  <span>เบอร์ฉุกเฉิน<br><span id="fphone"></span></span>
+</button>
 
-  <!-- Bottom bar -->
-  <div id="bottombar"></div>
+<div id="bbar"></div>
 
-  <!-- Drawer -->
-  <div id="drawer-overlay"></div>
-  <div id="drawer">
-    <div id="drawer-header">
-      <h2 id="drawer-app">TSU Smart Map</h2>
-      <p id="drawer-campus">มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง</p>
-    </div>
-    <div id="drawer-title">
-      <span>ตัวกรองชั้นข้อมูล</span>
-      <button class="close" id="drawer-close">✕</button>
-    </div>
-    <div id="layer-filters"></div>
+<div id="dov"></div>
+<div id="drawer">
+  <div id="dhead"><h2 id="dname">TSU Smart Map</h2><p id="dcampus">มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง</p></div>
+  <div class="dtitle"><span>ตัวกรองชั้นข้อมูล</span><button class="x" id="dclose">✕</button></div>
+  <div id="dfilters"></div>
+</div>
+
+<div class="bov" id="eov"></div>
+<div class="bsh" id="esh">
+  <div class="grab"></div>
+  <div class="ec">
+    <span class="ms" style="color:#fff">phone_in_talk</span>
+    <div class="lb">โทรออกทันที</div>
+    <div class="ph" id="eph"></div>
+    <div class="ds" id="eds"></div>
+    <a class="cb" id="ecall" href="">กดโทรออก</a>
   </div>
+</div>
 
-  <!-- Emergency sheet -->
-  <div id="emergency-overlay" class="sheet-overlay"></div>
-  <div id="emergency-sheet" class="sheet">
-    <div class="grabber"></div>
-    <div class="emergency-content">
-      <div class="phone-icon"><span class="material-symbols-rounded" style="font-size:72px;color:#fff;">phone_in_talk</span></div>
-      <div class="phone-label">โทรออกทันที</div>
-      <div class="phone-number" id="modal-phone"></div>
-      <div class="phone-desc" id="modal-phone-desc"></div>
-      <a id="modal-call-btn" class="call-btn" href="">กดโทรออก</a>
-    </div>
-  </div>
+<div class="bov" id="mov"></div>
+<div class="bsh" id="msh">
+  <div class="grab"></div>
+  <div class="stit">🏪 ตลาดใกล้มหาวิทยาลัย</div>
+  <div id="mbody"></div>
+</div>
 
-  <!-- Markets sheet -->
-  <div id="markets-overlay" class="sheet-overlay"></div>
-  <div id="markets-sheet" class="sheet">
-    <div class="grabber"></div>
-    <div class="sheet-title">🏪 ตลาดใกล้มหาวิทยาลัย</div>
-    <div id="markets-body"></div>
-  </div>
-
-  <!-- Place sheet -->
-  <div id="place-overlay" class="sheet-overlay"></div>
-  <div id="place-sheet" class="sheet">
-    <div class="grabber"></div>
-    <div id="place-body"></div>
-  </div>
+<div class="bov" id="pov"></div>
+<div class="bsh" id="psh">
+  <div class="grab"></div>
+  <div id="pbody"></div>
 </div>
 
 <script>
-let CONFIG = null;
-const LAYER_DESC = {
-  tram: 'ศาลาที่จอดรถราง',
-  fuel: 'ปั๊มน้ำมัน / จุดเติมใกล้เคียง',
-  scooter: 'จอด / เช่าสกู๊ตเตอร์ไฟฟ้า',
-  caution: 'ทางแยกอุบัติเหตุบ่อย',
-};
+const LI={tram:'directions_bus',fuel:'local_gas_station',scooter:'electric_scooter',caution:'warning_amber'};
+const LD={tram:'ศาลาที่จอดรถราง',fuel:'ปั๊มน้ำมัน / จุดเติมใกล้เคียง',scooter:'จอด / เช่าสกู๊ตเตอร์ไฟฟ้า',caution:'ทางแยกอุบัติเหตุบ่อย'};
+function SI(sc){return sc.icon==='storefront'?'storefront':sc.icon==='phone_in_talk'?'phone_in_talk':sc.icon==='directions_bus'?'directions_bus':sc.icon==='local_gas_station'?'local_gas_station':sc.icon==='electric_scooter'?'electric_scooter':sc.icon==='warning'?'warning_amber':'place'}
 
-const LAYER_ICON = {
-  tram: 'directions_bus',
-  fuel: 'local_gas_station',
-  scooter: 'electric_scooter',
-  caution: 'warning_amber',
-};
+const DEF={"app":{"name":"TSU Smart Map","campusName":"มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง","emergencyNumber":"0928733748","emergencyLabel":"เบอร์ฉุกเฉิน (รถเสีย / อุบัติเหตุ)"},"map":{"center":{"lat":7.80822,"lng":99.93869},"zoom":16,"minZoom":12,"maxZoom":19},"layers":[{"id":"tram","name":"จุดรถราง","emoji":"🚎","enabled":true,"color":"#1E88E5","locations":[{"name":"ศาลารถราง โซนหน้าประตูทางเข้า","lat":7.80755,"lng":99.93895,"detail":"จุดจอดรถรางเที่ยวแรกของมหาวิทยาลัย อยู่ฝั่งช่องทางออก"},{"name":"ศาลารถราง ศูนย์อาหาร","lat":7.80836,"lng":99.93848,"detail":"จุดจอดหน้าร้านอาหารและร้านสะดวกซื้อ"},{"name":"ศาลารถราง อาคารเรียนรวม","lat":7.80862,"lng":99.93968,"detail":"จุดจอดหน้าโถงอาคารเรียนรวมฝั่งตะวันออก"},{"name":"ศาลารถราง หอพักนักศึกษา","lat":7.80698,"lng":99.93821,"detail":"จุดจอดบริเวณด้านหน้าหอพักรวม"}]},{"id":"fuel","name":"จุดเติมน้ำมัน","emoji":"⛽","enabled":true,"color":"#43A047","locations":[{"name":"ปั๊มน้ำมันสวัสดิการในมหาวิทยาลัย","lat":7.80725,"lng":99.93805,"detail":"ปั๊มสวัสดิการ จำหน่ายน้ำมันและบริการเติมลม"},{"name":"สถานีบริการน้ำมัน หน้าประตูมหาวิทยาลัย","lat":7.80782,"lng":99.94015,"detail":"ปั๊มใกล้ประตูทางเข้า เปิด 24 ชั่วโมง"}]},{"id":"scooter","name":"จุดสกู๊ตเตอร์","emoji":"🛴","enabled":true,"color":"#FB8C00","locations":[{"name":"จุดเช่าสกู๊ตเตอร์ไฟฟ้า หน้าหอพัก","lat":7.80682,"lng":99.93858,"detail":"พื้นที่จอดและเช่าสกู๊ตเตอร์ไฟฟ้า (Beam / Lime)"},{"name":"จุดจอดสกู๊ตเตอร์ อาคารเรียนรวม","lat":7.80847,"lng":99.93955,"detail":"จุดจอดสกู๊ตเตอร์ฝั่งตะวันออกของอาคารเรียนรวม"},{"name":"จุดจอดสกู๊ตเตอร์ สนามกีฬา","lat":7.80742,"lng":99.94050,"detail":"จุดจอดบริเวณทางเข้าสนามกีฬากลาง"}]},{"id":"caution","name":"จุดควรระมัดระวัง","emoji":"⚠️","enabled":true,"color":"#E53935","locations":[{"name":"ทางแยกหน้าประตูมหาวิทยาลัย","lat":7.80766,"lng":99.93970,"detail":"ทางแยกที่เกิดอุบัติเหตุบ่อย โปรดชะลอความเร็ว"},{"name":"ทางข้ามหน้าโรงอาหาร","lat":7.80818,"lng":99.93842,"detail":"จุดข้ามถนนหนาแน่นช่วงพักเที่ยง ไฟส่องสว่างน้อยตอนกลางคืน"},{"name":"ซอยหลังอาคารวิทยาศาสตร์","lat":7.80902,"lng":99.93906,"detail":"ไฟส่องสว่างน้อยในเวลากลางคืน ระวังพื้นถนนขรุขระ"}]}],"markets":[{"name":"ตลาดนัดหน้ามอ","lat":7.80760,"lng":99.94030,"detail":"ตลาดนัดปากทางเข้าวิทยาเขตพัทลุง เปิดทุกเย็นวันพุธ","distanceKm":0.4,"emoji":"🏪"},{"name":"ตลาดป่าพะยอม","lat":7.83410,"lng":99.94310,"detail":"ตลาดสดประจำอำเภอป่าพะยอม ห่างจากมหาวิทยาลัยประมาณ 4 กม.","distanceKm":4.0,"emoji":"🛒"},{"name":"ตลาดบ้านพร้าว","lat":7.80230,"lng":99.93320,"detail":"ตลาดสดในย่านบ้านพร้าว ใกล้กับแนวถนนสายหลัก","distanceKm":1.5,"emoji":"🥬"}],"shortcuts":[{"id":"markets","label":"ตลาดใกล้ฉัน","icon":"storefront","color":"#43A047","action":"markets"},{"id":"emergency","label":"เบอร์ฉุกเฉิน","icon":"phone_in_talk","color":"#E53935","action":"emergency"},{"id":"tram","label":"จุดรถราง","icon":"directions_bus","color":"#1E88E5","action":"toggleLayer","layerId":"tram"}]};
 
-function iconName(sc) {
-  switch (sc.icon) {
-    case 'storefront': return 'storefront';
-    case 'phone_in_talk': return 'phone_in_talk';
-    case 'directions_bus': return 'directions_bus';
-    case 'local_gas_station': return 'local_gas_station';
-    case 'electric_scooter': return 'electric_scooter';
-    case 'warning': return 'warning_amber';
-    default: return 'place';
-  }
+let C=null,map,ml={};
+function fmt(n){return n.length===10&&n[0]==='0'?n.slice(0,3)+'-'+n.slice(3,6)+'-'+n.slice(6):n}
+
+async function loadCfg(){
+  try{const r=await fetch('config/app_config.json');if(r.ok){C=await r.json();return}}catch{}
+  try{const r=await fetch('tsu_smart_map/assets/config/app_config.json');if(r.ok){C=await r.json();return}}catch{}
+  C=DEF;
 }
 
-const EMBEDDED_CONFIG = {
-  "app": {
-    "name": "TSU Smart Map",
-    "campusName": "มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง",
-    "emergencyNumber": "0928733748",
-    "emergencyLabel": "เบอร์ฉุกเฉิน (รถเสีย / อุบัติเหตุ)"
-  },
-  "map": { "center": { "lat": 7.80822, "lng": 99.93869 }, "zoom": 16, "minZoom": 12, "maxZoom": 19 },
-  "layers": [
-    { "id": "tram", "name": "จุดรถราง", "emoji": "🚎", "enabled": true, "color": "#1E88E5",
-      "locations": [
-        { "name": "ศาลารถราง โซนหน้าประตูทางเข้า", "lat": 7.80755, "lng": 99.93895, "detail": "จุดจอดรถรางเที่ยวแรกของมหาวิทยาลัย อยู่ฝั่งช่องทางออก" },
-        { "name": "ศาลารถราง ศูนย์อาหาร", "lat": 7.80836, "lng": 99.93848, "detail": "จุดจอดหน้าร้านอาหารและร้านสะดวกซื้อ" },
-        { "name": "ศาลารถราง อาคารเรียนรวม", "lat": 7.80862, "lng": 99.93968, "detail": "จุดจอดหน้าโถงอาคารเรียนรวมฝั่งตะวันออก" },
-        { "name": "ศาลารถราง หอพักนักศึกษา", "lat": 7.80698, "lng": 99.93821, "detail": "จุดจอดบริเวณด้านหน้าหอพักรวม" }
-      ] },
-    { "id": "fuel", "name": "จุดเติมน้ำมัน", "emoji": "⛽", "enabled": true, "color": "#43A047",
-      "locations": [
-        { "name": "ปั๊มน้ำมันสวัสดิการในมหาวิทยาลัย", "lat": 7.80725, "lng": 99.93805, "detail": "ปั๊มสวัสดิการ จำหน่ายน้ำมันและบริการเติมลม" },
-        { "name": "สถานีบริการน้ำมัน หน้าประตูมหาวิทยาลัย", "lat": 7.80782, "lng": 99.94015, "detail": "ปั๊มใกล้ประตูทางเข้า เปิด 24 ชั่วโมง" }
-      ] },
-    { "id": "scooter", "name": "จุดสกู๊ตเตอร์", "emoji": "🛴", "enabled": true, "color": "#FB8C00",
-      "locations": [
-        { "name": "จุดเช่าสกู๊ตเตอร์ไฟฟ้า หน้าหอพัก", "lat": 7.80682, "lng": 99.93858, "detail": "พื้นที่จอดและเช่าสกู๊ตเตอร์ไฟฟ้า (Beam / Lime)" },
-        { "name": "จุดจอดสกู๊ตเตอร์ อาคารเรียนรวม", "lat": 7.80847, "lng": 99.93955, "detail": "จุดจอดสกู๊ตเตอร์ฝั่งตะวันออกของอาคารเรียนรวม" },
-        { "name": "จุดจอดสกู๊ตเตอร์ สนามกีฬา", "lat": 7.80742, "lng": 99.94050, "detail": "จุดจอดบริเวณทางเข้าสนามกีฬากลาง" }
-      ] },
-    { "id": "caution", "name": "จุดควรระมัดระวัง", "emoji": "⚠️", "enabled": true, "color": "#E53935",
-      "locations": [
-        { "name": "ทางแยกหน้าประตูมหาวิทยาลัย", "lat": 7.80766, "lng": 99.93970, "detail": "ทางแยกที่เกิดอุบัติเหตุบ่อย โปรดชะลอความเร็ว" },
-        { "name": "ทางข้ามหน้าโรงอาหาร", "lat": 7.80818, "lng": 99.93842, "detail": "จุดข้ามถนนหนาแน่นช่วงพักเที่ยง ไฟส่องสว่างน้อยตอนกลางคืน" },
-        { "name": "ซอยหลังอาคารวิทยาศาสตร์", "lat": 7.80902, "lng": 99.93906, "detail": "ไฟส่องสว่างน้อยในเวลากลางคืน ระวังพื้นถนนขรุขระ" }
-      ] }
-  ],
-  "markets": [
-    { "name": "ตลาดนัดหน้ามอ", "lat": 7.80760, "lng": 99.94030, "detail": "ตลาดนัดปากทางเข้าวิทยาเขตพัทลุง เปิดทุกเย็นวันพุธ", "distanceKm": 0.4, "emoji": "🏪" },
-    { "name": "ตลาดป่าพะยอม", "lat": 7.83410, "lng": 99.94310, "detail": "ตลาดสดประจำอำเภอป่าพะยอม ห่างจากมหาวิทยาลัยประมาณ 4 กม.", "distanceKm": 4.0, "emoji": "🛒" },
-    { "name": "ตลาดบ้านพร้าว", "lat": 7.80230, "lng": 99.93320, "detail": "ตลาดสดในย่านบ้านพร้าว ใกล้กับแนวถนนสายหลัก", "distanceKm": 1.5, "emoji": "🥬" }
-  ],
-  "shortcuts": [
-    { "id": "markets", "label": "ตลาดใกล้ฉัน", "icon": "🏪", "color": "#43A047", "action": "markets" },
-    { "id": "emergency", "label": "เบอร์ฉุกเฉิน", "icon": "📞", "color": "#E53935", "action": "emergency" },
-    { "id": "tram", "label": "จุดรถราง", "icon": "🚎", "color": "#1E88E5", "action": "toggleLayer", "layerId": "tram" }
-  ]
-};
-
-let map, markerLayers = {};
-
-function formatPhone(num) {
-  if (num.length === 10 && num.startsWith('0')) return num.slice(0,3) + '-' + num.slice(3,6) + '-' + num.slice(6);
-  return num;
+function initMap(){
+  map=L.map('map',{center:[C.map.center.lat,C.map.center.lng],zoom:C.map.zoom,minZoom:C.map.minZoom,maxZoom:C.map.maxZoom});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+  updM();
 }
 
-async function loadConfig() {
-  for (const url of ['config/app_config.json', 'tsu_smart_map/assets/config/app_config.json']) {
-    try { const r = await fetch(url); if (r.ok) { CONFIG = await r.json(); return; } } catch {}
-  }
-  CONFIG = EMBEDDED_CONFIG;
+function micon(la,lo){
+  const ic=LI[la.id]||'place';
+  return L.divIcon({className:'',html:`<div style="text-align:center"><div style="background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,.35);display:inline-block"><span class="ms" style="font-size:20px;color:${la.color}">${ic}</span></div><div style="background:${la.color};color:#fff;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap;margin-top:1px;box-shadow:0 1px 3px rgba(0,0,0,.2)">${lo.name}</div></div>`,iconSize:[150,40],iconAnchor:[75,40]});
 }
 
-function initMap() {
-  const c = CONFIG.map.center;
-  map = L.map('map', {
-    center: [c.lat, c.lng], zoom: CONFIG.map.zoom,
-    minZoom: CONFIG.map.minZoom, maxZoom: CONFIG.map.maxZoom,
-    zoomControl: true, zoomAnimation: true,
-  });
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap', maxZoom: 19,
-  }).addTo(map);
-  updateMarkers();
-}
-
-function markerIcon(layer, loc) {
-  const iconName = LAYER_ICON[layer.id] || 'place';
-  return L.divIcon({
-    className: '',
-    html: `
-      <div style="text-align:center;">
-        <div style="background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,.35);display:inline-block;line-height:0;">
-          <span class="material-symbols-rounded" style="font-size:20px;color:${layer.color};">${iconName}</span>
-        </div>
-        <div style="background:${layer.color};color:#fff;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap;margin-top:1px;box-shadow:0 1px 3px rgba(0,0,0,.2);">${loc.name}</div>
-      </div>`,
-    iconSize: [150, 40], iconAnchor: [75, 40],
-  });
-}
-
-function updateMarkers() {
-  Object.values(markerLayers).forEach(fg => map.removeLayer(fg));
-  markerLayers = {};
-  CONFIG.layers.forEach(layer => {
-    if (!layer.enabled) return;
-    const fg = L.featureGroup();
-    layer.locations.forEach(loc => {
-      const m = L.marker([loc.lat, loc.lng], { icon: markerIcon(layer, loc) }).addTo(fg);
-      m.on('click', () => showPlace(layer, loc));
+function updM(){
+  Object.values(ml).forEach(f=>map.removeLayer(f));ml={};
+  C.layers.forEach(la=>{
+    if(!la.enabled)return;
+    const fg=L.featureGroup();
+    la.locations.forEach(lo=>{
+      const m=L.marker([lo.lat,lo.lng],{icon:micon(la,lo)}).addTo(fg);
+      m.on('click',()=>showP(la,lo));
     });
-    fg.addTo(map);
-    markerLayers[layer.id] = fg;
+    fg.addTo(map);ml[la.id]=fg;
   });
 }
 
-// ── Drawer ──
-function openDrawer() {
-  document.getElementById('drawer-overlay').classList.add('active');
-  document.getElementById('drawer').classList.add('active');
-}
-function closeDrawer() {
-  document.getElementById('drawer-overlay').classList.remove('active');
-  document.getElementById('drawer').classList.remove('active');
-}
-function buildDrawer() {
-  document.getElementById('drawer-app').textContent = CONFIG.app.name;
-  document.getElementById('drawer-campus').textContent = CONFIG.app.campusName;
-  document.getElementById('fab-phone').textContent = formatPhone(CONFIG.app.emergencyNumber);
-  const c = document.getElementById('layer-filters');
-  c.innerHTML = '';
-  CONFIG.layers.forEach(layer => {
-    const div = document.createElement('div');
-    div.className = 'layer-item';
-    div.innerHTML = `
-      <div class="layer-icon" style="background:${layer.color}"><span class="material-symbols-rounded">${LAYER_ICON[layer.id] || 'place'}</span></div>
-      <div class="layer-info">
-        <div class="layer-name">${layer.name}</div>
-        <div class="layer-desc">${LAYER_DESC[layer.id] || ''}</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" ${layer.enabled ? 'checked' : ''} onchange="toggleLayer('${layer.id}')">
-        <span class="slider"></span>
-      </label>`;
-    c.appendChild(div);
+// Drawer
+function openD(){document.getElementById('dov').classList.add('on');document.getElementById('drawer').classList.add('on')}
+function closeD(){document.getElementById('dov').classList.remove('on');document.getElementById('drawer').classList.remove('on')}
+function buildD(){
+  document.getElementById('dname').textContent=C.app.name;
+  document.getElementById('dcampus').textContent=C.app.campusName;
+  document.getElementById('fphone').textContent=fmt(C.app.emergencyNumber);
+  const c=document.getElementById('dfilters');c.innerHTML='';
+  C.layers.forEach(la=>{
+    c.innerHTML+=`<div class="li"><div class="lc" style="background:${la.color}"><span class="ms">${LI[la.id]||'place'}</span></div><div class="lf"><div class="ln">${la.name}</div><div class="ld">${LD[la.id]||''}</div></div><label class="tg"><input type="checkbox" ${la.enabled?'checked':''} onchange="tgL('${la.id}')"><span class="sl"></span></label></div>`;
   });
 }
+function tgL(id){const l=C.layers.find(x=>x.id===id);if(l){l.enabled=!l.enabled;updM();buildB();buildD()}}
 
-function toggleLayer(id) {
-  const layer = CONFIG.layers.find(l => l.id === id);
-  if (layer) { layer.enabled = !layer.enabled; updateMarkers(); buildBottomBar(); }
-}
-
-// ── Bottom bar ──
-function buildBottomBar() {
-  const bar = document.getElementById('bottombar');
-  bar.innerHTML = '';
-  CONFIG.shortcuts.forEach(sc => {
-    const btn = document.createElement('button');
-    const isActive = sc.action === 'toggleLayer' && sc.layerId && CONFIG.layers.find(l => l.id === sc.layerId)?.enabled;
-    btn.className = 'shortcut-btn';
-    btn.innerHTML = `
-      <div class="shortcut-circle" style="background:${isActive ? sc.color : sc.color + '22'}; color:${isActive ? '#fff' : sc.color}"><span class="material-symbols-rounded">${iconName(sc)}</span></div>
-      <span class="shortcut-label">${sc.label}</span>`;
-    btn.onclick = () => runShortcut(sc);
-    bar.appendChild(btn);
+// Bottom bar
+function buildB(){
+  const b=document.getElementById('bbar');b.innerHTML='';
+  C.shortcuts.forEach(sc=>{
+    const on=sc.action==='toggleLayer'&&sc.layerId&&C.layers.find(l=>l.id===sc.layerId)?.enabled;
+    b.innerHTML+=`<button class="sbtn" onclick="runS('${sc.id}')"><div class="sc" style="background:${on?sc.color:sc.color+'22'};color:${on?'#fff':sc.color}"><span class="ms">${SI(sc)}</span></div><span class="slb">${sc.label}</span></button>`;
   });
 }
-
-function runShortcut(sc) {
-  if (sc.action === 'markets') showMarkets();
-  else if (sc.action === 'emergency') showEmergency();
-  else if (sc.action === 'toggleLayer' && sc.layerId) { toggleLayer(sc.layerId); buildDrawer(); }
+function runS(id){
+  const sc=C.shortcuts.find(x=>x.id===id);
+  if(sc.action==='markets')showM();
+  else if(sc.action==='emergency')showE();
+  else if(sc.action==='toggleLayer'&&sc.layerId){tgL(sc.layerId)}
 }
 
-// ── Search ──
-function searchIconName(r) {
-  if (r.cat === 'ตลาด') return 'storefront';
-  const layer = CONFIG.layers.find(l => l.name === r.cat);
-  return layer ? (LAYER_ICON[layer.id] || 'place') : 'place';
-}
-
-function onSearch(q) {
-  const box = document.getElementById('search-results');
-  q = q.trim().toLowerCase();
-  if (!q) { box.classList.remove('active'); box.innerHTML = ''; return; }
-  const results = [];
-  CONFIG.layers.forEach(layer => layer.locations.forEach(loc => {
-    if (loc.name.toLowerCase().includes(q)) results.push({ name: loc.name, cat: layer.name, color: layer.color, lat: loc.lat, lng: loc.lng });
-  }));
-  CONFIG.markets.forEach(mk => {
-    if (mk.name.toLowerCase().includes(q)) results.push({ name: mk.name, cat: 'ตลาด', color: '#43A047', lat: mk.lat, lng: mk.lng });
-  });
-  if (!results.length) { box.classList.remove('active'); box.innerHTML = ''; return; }
-  box.innerHTML = results.slice(0, 8).map(r =>
-    `<div class="search-item" onclick="selectPlace(${r.lat},${r.lng})">
-      <span class="icon" style="width:32px;height:32px;border-radius:50%;background:${r.color};color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:18px;color:#fff;">${searchIconName(r)}</span></span>
-      <div><div class="name">${r.name}</div><div class="cat">${r.cat}</div></div>
-    </div>`).join('');
-  box.classList.add('active');
-}
-function selectPlace(lat, lng) {
-  document.getElementById('search-box').value = '';
-  document.getElementById('search-results').classList.remove('active');
-  map.setView([lat, lng], 17);
-}
-
-// ── Sheets ──
-function showEmergency() {
-  const p = CONFIG.app.emergencyNumber;
-  document.getElementById('modal-phone').textContent = formatPhone(p);
-  document.getElementById('modal-phone-desc').textContent = CONFIG.app.emergencyLabel;
-  document.getElementById('modal-call-btn').href = 'tel:' + p;
-  openSheet('emergency');
-}
-function showMarkets() {
-  const palette = ['#E91E63', '#43A047', '#5D9CEC', '#8E24AA'];
-  const body = document.getElementById('markets-body');
-  body.innerHTML = CONFIG.markets.map((mk, i) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${mk.lat},${mk.lng}&travelmode=driving`;
-    const color = palette[i % palette.length];
-    return `
-      <div class="market-card" style="border-left-color:${color}">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:44px;height:44px;border-radius:10px;background:${color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span class="material-symbols-rounded" style="font-size:24px;color:${color};">storefront</span>
-          </div>
-          <div style="flex:1;">
-            <div class="market-name">${mk.name}</div>
-            <div class="market-dist"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">location_on</span> ${mk.distanceKm} กม.</div>
-            <div class="market-detail">${mk.detail}</div>
-            <a class="market-nav" href="${url}" target="_blank"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">navigation</span> นำทางไป Google Maps</a>
-          </div>
-        </div>
-      </div>`;
+// Search
+document.getElementById('sbox').addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase(),bx=document.getElementById('sresults');
+  if(!q){bx.classList.remove('on');bx.innerHTML='';return}
+  const rs=[];
+  C.layers.forEach(la=>la.locations.forEach(lo=>{if(lo.name.toLowerCase().includes(q))rs.push({n:lo.name,c:la.name,cl:la.color,lat:lo.lat,lng:lo.lng,id:la.id})}));
+  C.markets.forEach(mk=>{if(mk.name.toLowerCase().includes(q))rs.push({n:mk.name,c:'ตลาด',cl:'#43A047',lat:mk.lat,lng:mk.lng,id:'mk'})});
+  if(!rs.length){bx.classList.remove('on');bx.innerHTML='';return}
+  bx.innerHTML=rs.slice(0,8).map(r=>{
+    const ic=r.id==='mk'?'storefront':LI[r.id]||'place';
+    return`<div class="sri" onclick="selP(${r.lat},${r.lng})"><div class="si" style="background:${r.cl}"><span class="ms">${ic}</span></div><div><div class="nm">${r.n}</div><div class="ct">${r.c}</div></div></div>`;
   }).join('');
-  openSheet('markets');
-}
-function showPlace(layer, loc) {
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=driving`;
-  const iconName = LAYER_ICON[layer.id] || 'place';
-  document.getElementById('place-body').innerHTML = `
-    <div class="place-category">
-      <div class="place-cat-icon" style="background:${layer.color}"><span class="material-symbols-rounded">${iconName}</span></div>
-      <span class="place-cat-name">${layer.name}</span>
-    </div>
-    <div class="place-name">${loc.name}</div>
-    <div class="place-detail">${loc.detail}</div>
-    <a class="place-nav-btn" href="${url}" target="_blank"><span class="material-symbols-rounded" style="vertical-align:middle;margin-right:6px;">navigation</span> นำทางไป Google Maps</a>`;
-  openSheet('place');
-}
-
-function openSheet(name) {
-  closeAllSheets();
-  document.getElementById(name + '-overlay').classList.add('active');
-  document.getElementById(name + '-sheet').classList.add('active');
-}
-function closeSheet(name) {
-  document.getElementById(name + '-overlay').classList.remove('active');
-  document.getElementById(name + '-sheet').classList.remove('active');
-}
-function closeAllSheets() {
-  ['emergency', 'markets', 'place'].forEach(s => closeSheet(s));
-}
-
-// ── Events ──
-document.getElementById('menu-btn').onclick = openDrawer;
-document.getElementById('drawer-close').onclick = closeDrawer;
-document.getElementById('drawer-overlay').onclick = closeDrawer;
-document.getElementById('fab-emergency').onclick = showEmergency;
-document.getElementById('search-box').oninput = e => onSearch(e.target.value);
-document.getElementById('search-box').onfocus = () => onSearch(document.getElementById('search-box').value);
-['emergency', 'markets', 'place'].forEach(name => {
-  document.getElementById(name + '-overlay').onclick = () => closeSheet(name);
+  bx.classList.add('on');
 });
+function selP(lat,lng){document.getElementById('sbox').value='';document.getElementById('sresults').classList.remove('on');map.setView([lat,lng],17)}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')&&!e.target.closest('#sresults'))document.getElementById('sresults').classList.remove('on')});
 
-// Close search outside
-document.addEventListener('click', e => {
-  if (!e.target.closest('#search-box') && !e.target.closest('#search-results')) {
-    document.getElementById('search-results').classList.remove('active');
-  }
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeDrawer(); closeAllSheets(); }
-});
+// Sheets
+function openS(name){closeAll();document.getElementById(name+'ov').classList.add('on');document.getElementById(name+'sh').classList.add('on')}
+function closeS(name){document.getElementById(name+'ov').classList.remove('on');document.getElementById(name+'sh').classList.remove('on')}
+function closeAll(){['e','m','p'].forEach(closeS)}
 
-// ── Init ──
-(async function () {
-  await loadConfig();
-  await new Promise(r => setTimeout(r, 2000));
-  document.getElementById('splash').classList.add('fade-out');
-  buildDrawer();
-  buildBottomBar();
-  initMap();
+function showE(){
+  document.getElementById('eph').textContent=fmt(C.app.emergencyNumber);
+  document.getElementById('eds').textContent=C.app.emergencyLabel;
+  document.getElementById('ecall').href='tel:'+C.app.emergencyNumber;
+  openS('e');
+}
+function showM(){
+  const pal=['#E91E63','#43A047','#5D9CEC','#8E24AA'];
+  document.getElementById('mbody').innerHTML=C.markets.map((mk,i)=>{
+    const c=pal[i%4],url=`https://www.google.com/maps/dir/?api=1&destination=${mk.lat},${mk.lng}&travelmode=driving`;
+    return`<div class="mc" style="border-left-color:${c}"><div class="row"><div class="mi" style="background:${c}20"><span class="ms" style="color:${c}">storefront</span></div><div style="flex:1"><div class="mn">${mk.name}</div><div class="md"><span class="ms" style="font-size:14px;vertical-align:middle">location_on</span> ${mk.distanceKm} กม.</div><div class="mt">${mk.detail}</div><a class="mnav" href="${url}" target="_blank"><span class="ms" style="font-size:14px;vertical-align:middle">navigation</span> นำทางไป Google Maps</a></div></div></div>`;
+  }).join('');
+  openS('m');
+}
+function showP(la,lo){
+  const ic=LI[la.id]||'place',url=`https://www.google.com/maps/dir/?api=1&destination=${lo.lat},${lo.lng}&travelmode=driving`;
+  document.getElementById('pbody').innerHTML=`<div class="pc"><div class="pci" style="background:${la.color}"><span class="ms">${ic}</span></div><span class="pcn">${la.name}</span></div><div class="pn">${lo.name}</div><div class="pd">${lo.detail}</div><a class="pnb" href="${url}" target="_blank"><span class="ms" style="vertical-align:middle;margin-right:6px">navigation</span> นำทางไป Google Maps</a>`;
+  openS('p');
+}
+
+// Events
+document.getElementById('menuBtn').onclick=openD;
+document.getElementById('dclose').onclick=closeD;
+document.getElementById('dov').onclick=closeD;
+document.getElementById('fab').onclick=showE;
+['e','m','p'].forEach(n=>document.getElementById(n+'ov').onclick=()=>closeS(n));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeD();closeAll()}});
+
+// Init
+(async()=>{
+  await loadCfg();
+  await new Promise(r=>setTimeout(r,2000));
+  document.getElementById('splash').classList.add('hide');
+  buildD();buildB();initMap();
 })();
 </script>
 </body>
