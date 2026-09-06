@@ -10,6 +10,23 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
 
+/* ── Splash Screen ── */
+#splash {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, #5D9CEC, #1565C0);
+  z-index: 9999; display: flex; align-items: center; justify-content: center;
+  opacity: 1; transition: opacity 0.5s;
+}
+#splash.fade-out { opacity: 0; pointer-events: none; }
+.splash-content { text-align: center; color: #fff; }
+.splash-logo { font-size: 100px; animation: splashBounce 1.5s ease-in-out infinite; }
+.splash-title { font-size: 36px; font-weight: 800; letter-spacing: 2px; margin-top: 16px; white-space: pre-line; line-height: 1.2; }
+.splash-sub { font-size: 16px; opacity: 0.9; margin-top: 8px; }
+@keyframes splashBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
 #app { display: flex; height: 100vh; }
 
 /* ── Sidebar ── */
@@ -200,6 +217,15 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:
 </style>
 </head>
 <body>
+<!-- Splash Screen -->
+<div id="splash">
+  <div class="splash-content">
+    <div class="splash-logo">🗺️</div>
+    <div class="splash-title">TSU&#10;Smart Map</div>
+    <div class="splash-sub">แผนที่อัจฉริยะ ม.ทักษิณ พัทลุง</div>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- Sidebar -->
@@ -348,10 +374,16 @@ function formatPhone(num) {
 }
 
 async function loadConfig() {
-  try {
-    const res = await fetch('config/app_config.json');
-    if (res.ok) { CONFIG = await res.json(); return; }
-  } catch {}
+  const urls = [
+    'config/app_config.json',
+    'tsu_smart_map/assets/config/app_config.json',
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) { CONFIG = await res.json(); return; }
+    } catch {}
+  }
   CONFIG = EMBEDDED_CONFIG;
 }
 
@@ -559,6 +591,12 @@ document.addEventListener('keydown', e => {
 // ── Init ──
 (async function() {
   await loadConfig();
+
+  // Show splash for 2 seconds like the Flutter app, then reveal main app
+  await new Promise(r => setTimeout(r, 2000));
+  const splash = document.getElementById('splash');
+  splash.classList.add('fade-out');
+
   buildSidebar();
   buildBottomBar();
   initMap();
