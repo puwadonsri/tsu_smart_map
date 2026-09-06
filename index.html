@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSU Smart Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+
+#app { display: flex; height: 100vh; }
+
+/* ── Sidebar ── */
+#sidebar {
+  width: 320px; background: #fff; box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s;
+  flex-shrink: 0;
+}
+#sidebar.collapsed { transform: translateX(-320px); margin-left: -320px; }
+#sidebar-header {
+  background: #0D47A1; color: #fff; padding: 18px 16px;
+}
+#sidebar-header h2 { font-size: 18px; margin-bottom: 4px; }
+#sidebar-header p { font-size: 12px; opacity: 0.8; }
+#sidebar-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+.section-title { font-size: 12px; color: #888; font-weight: 700; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Layer toggle */
+.layer-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: #f8f9fa; border-radius: 10px; margin-bottom: 6px; cursor: pointer;
+  transition: all 0.2s;
+}
+.layer-item:hover { background: #e3f2fd; }
+.layer-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; flex-shrink: 0; }
+.layer-info { flex: 1; }
+.layer-name { font-weight: 600; font-size: 14px; }
+.layer-desc { font-size: 11px; color: #888; margin-top: 2px; }
+.toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .slider {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: #ccc; border-radius: 24px; cursor: pointer; transition: 0.3s;
+}
+.toggle .slider:before {
+  content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px;
+  background: #fff; border-radius: 50%; transition: 0.3s;
+}
+.toggle input:checked + .slider { background: #1E88E5; }
+.toggle input:checked + .slider:before { transform: translateX(20px); }
+
+/* ── Map ── */
+#map-container { flex: 1; position: relative; }
+#map { width: 100%; height: 100%; }
+
+/* Top bar */
+#topbar {
+  position: absolute; top: 12px; left: 12px; right: 12px; z-index: 999;
+  display: flex; gap: 8px; align-items: center;
+}
+#menu-btn {
+  width: 42px; height: 42px; background: #fff; border: none; border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+#search-box {
+  flex: 1; height: 42px; border: none; border-radius: 21px; padding: 0 16px 0 42px;
+  font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); outline: none;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat 14px center;
+}
+#search-results {
+  position: absolute; top: 56px; left: 52px; right: 60px; z-index: 999;
+  background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  max-height: 300px; overflow-y: auto; display: none;
+}
+#search-results.active { display: block; }
+.search-item {
+  padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+}
+.search-item:hover { background: #e3f2fd; }
+.search-item:last-child { border-bottom: none; }
+.search-item .icon { font-size: 18px; }
+.search-item .name { font-size: 13px; font-weight: 600; }
+.search-item .cat { font-size: 11px; color: #888; }
+
+/* ── FAB Emergency ── */
+#fab-emergency {
+  position: absolute; bottom: 80px; right: 16px; z-index: 999;
+  background: #E53935; color: #fff; border: none; border-radius: 16px;
+  padding: 12px 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(229,57,53,0.4);
+  display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+#fab-emergency:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,57,53,0.5); }
+#fab-emergency .phone { font-size: 20px; }
+
+/* ── Bottom bar ── */
+#bottombar {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  z-index: 999; background: #fff; border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12); display: flex;
+  padding: 10px 8px; gap: 4px;
+}
+.shortcut-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 16px; border: none; background: transparent; border-radius: 12px;
+  cursor: pointer; transition: all 0.2s; min-width: 80px;
+}
+.shortcut-btn:hover { background: #f0f0f0; }
+.shortcut-btn.active { background: #e3f2fd; }
+.shortcut-circle {
+  width: 44px; height: 44px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 22px;
+  transition: all 0.2s;
+}
+.shortcut-label { font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 2000; display: flex;
+  align-items: center; justify-content: center; opacity: 0;
+  pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal {
+  background: #fff; border-radius: 20px; width: 90%; max-width: 420px;
+  max-height: 85vh; overflow-y: auto; transform: translateY(30px);
+  transition: transform 0.3s;
+}
+.modal-overlay.active .modal { transform: translateY(0); }
+
+.modal-header {
+  padding: 16px 20px; border-bottom: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h3 { font-size: 18px; }
+.modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+.modal-body { padding: 16px 20px; }
+
+/* Emergency modal */
+.emergency-modal .modal { background: linear-gradient(135deg, #E53935, #C62828); color: #fff; }
+.emergency-modal .modal-header { border-bottom-color: rgba(255,255,255,0.2); }
+.emergency-modal .modal-header h3 { color: #fff; }
+.emergency-modal .modal-close { color: rgba(255,255,255,0.7); }
+.emergency-content { text-align: center; padding: 24px 20px; }
+.emergency-content .phone-icon { font-size: 64px; margin-bottom: 12px; }
+.emergency-content .phone-label { font-size: 20px; margin-bottom: 4px; }
+.emergency-content .phone-number { font-size: 36px; font-weight: 800; letter-spacing: 2px; margin-bottom: 8px; }
+.emergency-content .phone-desc { font-size: 14px; opacity: 0.85; margin-bottom: 24px; }
+.emergency-content .call-btn {
+  display: inline-block; background: #fff; color: #E53935; padding: 14px 48px;
+  border-radius: 30px; font-size: 18px; font-weight: 800; text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;
+}
+.emergency-content .call-btn:hover { transform: scale(1.05); }
+
+/* Market modal */
+.market-card {
+  background: #f8f9fa; border-radius: 12px; padding: 14px;
+  margin-bottom: 12px; border-left: 4px solid; display: flex; gap: 12px;
+  align-items: flex-start; transition: box-shadow 0.2s; cursor: pointer;
+}
+.market-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.market-emoji { font-size: 36px; flex-shrink: 0; }
+.market-info { flex: 1; }
+.market-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.market-dist { font-size: 12px; color: #888; display: flex; align-items: center; gap: 4px; }
+.market-detail { font-size: 13px; color: #555; margin-top: 4px; }
+.market-nav {
+  display: inline-flex; align-items: center; gap: 4px; color: #0D47A1;
+  font-size: 12px; font-weight: 600; margin-top: 6px; text-decoration: none;
+}
+.market-nav:hover { text-decoration: underline; }
+
+/* Place info modal */
+.place-info { padding: 4px 0; }
+.place-category { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.place-cat-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.place-cat-name { font-size: 12px; color: #888; }
+.place-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.place-detail { font-size: 14px; color: #555; margin-bottom: 16px; line-height: 1.5; }
+.place-nav-btn {
+  display: block; width: 100%; padding: 14px; background: #0D47A1; color: #fff;
+  border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; text-align: center; text-decoration: none;
+  transition: background 0.2s;
+}
+.place-nav-btn:hover { background: #1565C0; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  #sidebar { position: absolute; height: 100%; z-index: 1001; }
+  #sidebar.collapsed { transform: translateX(-320px); }
+  #bottombar { width: calc(100% - 24px); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <h2 id="app-title">TSU Smart Map</h2>
+      <p id="campus-name">มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง</p>
+    </div>
+    <div id="sidebar-body">
+      <div class="section-title">ตัวกรองชั้นข้อมูล</div>
+      <div id="layer-filters"></div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div id="map-container">
+    <!-- Top bar -->
+    <div id="topbar">
+      <button id="menu-btn" onclick="toggleSidebar()">☰</button>
+      <input id="search-box" type="text" placeholder="ค้นหาสถานที่ ภายใน ม.ทักษิณ..." oninput="onSearch(this.value)" onfocus="onSearch(this.value)">
+    </div>
+    <div id="search-results"></div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- FAB -->
+    <button id="fab-emergency" onclick="showEmergency()">
+      <span class="phone">📞</span>
+      <span>เบอร์ฉุกเฉิน<br><span id="fab-phone"></span></span>
+    </button>
+
+    <!-- Bottom bar -->
+    <div id="bottombar"></div>
+  </div>
+</div>
+
+<!-- Emergency Modal -->
+<div id="emergency-modal" class="modal-overlay emergency-modal" onclick="if(event.target===this)closeEmergency()">
+  <div class="modal">
+    <div class="emergency-content">
+      <div class="phone-icon">📞</div>
+      <div class="phone-label">โทรออกทันที</div>
+      <div class="phone-number" id="modal-phone"></div>
+      <div class="phone-desc" id="modal-phone-desc"></div>
+      <a id="modal-call-btn" class="call-btn" href="">กดโทรออก</a>
+    </div>
+  </div>
+</div>
+
+<!-- Markets Modal -->
+<div id="markets-modal" class="modal-overlay" onclick="if(event.target===this)closeMarkets()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🏪 ตลาดใกล้มหาวิทยาลัย</h3>
+      <button class="modal-close" onclick="closeMarkets()">✕</button>
+    </div>
+    <div class="modal-body" id="markets-body"></div>
+  </div>
+</div>
+
+<!-- Place Info Modal -->
+<div id="place-modal" class="modal-overlay" onclick="if(event.target===this)closePlace()">
+  <div class="modal">
+    <div class="modal-body" id="place-body"></div>
+  </div>
+</div>
+
+<script>
+// ── Config (embedded, will try to load external first) ──
+let CONFIG = null;
+
+const LAYER_DESC = {
+  tram: 'ศาลาที่จอดรถราง',
+  fuel: 'ปั๊มน้ำมัน / จุดเติมใกล้เคียง',
+  scooter: 'จอด / เช่าสกู๊ตเตอร์ไฟฟ้า',
+  caution: 'ทางแยกอุบัติเหตุบ่อย',
+};
+
+// ── Embedded config fallback ──
+const EMBEDDED_CONFIG = {
+  "app": {
+    "name": "TSU Smart Map",
+    "campusName": "มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง",
+    "emergencyNumber": "0928733748",
+    "emergencyLabel": "เบอร์ฉุกเฉิน (รถเสีย / อุบัติเหตุ)"
+  },
+  "map": {
+    "center": { "lat": 7.80822, "lng": 99.93869 },
+    "zoom": 16, "minZoom": 12, "maxZoom": 19
+  },
+  "layers": [
+    {
+      "id": "tram", "name": "จุดรถราง", "emoji": "🚎", "enabled": true, "color": "#1E88E5",
+      "locations": [
+        { "name": "ศาลารถราง โซนหน้าประตูทางเข้า", "lat": 7.80755, "lng": 99.93895, "detail": "จุดจอดรถรางเที่ยวแรกของมหาวิทยาลัย อยู่ฝั่งช่องทางออก" },
+        { "name": "ศาลารถราง ศูนย์อาหาร", "lat": 7.80836, "lng": 99.93848, "detail": "จุดจอดหน้าร้านอาหารและร้านสะดวกซื้อ" },
+        { "name": "ศาลารถราง อาคารเรียนรวม", "lat": 7.80862, "lng": 99.93968, "detail": "จุดจอดหน้าโถงอาคารเรียนรวมฝั่งตะวันออก" },
+        { "name": "ศาลารถราง หอพักนักศึกษา", "lat": 7.80698, "lng": 99.93821, "detail": "จุดจอดบริเวณด้านหน้าหอพักรวม" }
+      ]
+    },
+    {
+      "id": "fuel", "name": "จุดเติมน้ำมัน", "emoji": "⛽", "enabled": true, "color": "#43A047",
+      "locations": [
+        { "name": "ปั๊มน้ำมันสวัสดิการในมหาวิทยาลัย", "lat": 7.80725, "lng": 99.93805, "detail": "ปั๊มสวัสดิการ จำหน่ายน้ำมันและบริการเติมลม" },
+        { "name": "สถานีบริการน้ำมัน หน้าประตูมหาวิทยาลัย", "lat": 7.80782, "lng": 99.94015, "detail": "ปั๊มใกล้ประตูทางเข้า เปิด 24 ชั่วโมง" }
+      ]
+    },
+    {
+      "id": "scooter", "name": "จุดสกู๊ตเตอร์", "emoji": "🛴", "enabled": true, "color": "#FB8C00",
+      "locations": [
+        { "name": "จุดเช่าสกู๊ตเตอร์ไฟฟ้า หน้าหอพัก", "lat": 7.80682, "lng": 99.93858, "detail": "พื้นที่จอดและเช่าสกู๊ตเตอร์ไฟฟ้า (Beam / Lime)" },
+        { "name": "จุดจอดสกู๊ตเตอร์ อาคารเรียนรวม", "lat": 7.80847, "lng": 99.93955, "detail": "จุดจอดสกู๊ตเตอร์ฝั่งตะวันออกของอาคารเรียนรวม" },
+        { "name": "จุดจอดสกู๊ตเตอร์ สนามกีฬา", "lat": 7.80742, "lng": 99.94050, "detail": "จุดจอดบริเวณทางเข้าสนามกีฬากลาง" }
+      ]
+    },
+    {
+      "id": "caution", "name": "จุดควรระมัดระวัง", "emoji": "⚠️", "enabled": true, "color": "#E53935",
+      "locations": [
+        { "name": "ทางแยกหน้าประตูมหาวิทยาลัย", "lat": 7.80766, "lng": 99.93970, "detail": "ทางแยกที่เกิดอุบัติเหตุบ่อย โปรดชะลอความเร็ว" },
+        { "name": "ทางข้ามหน้าโรงอาหาร", "lat": 7.80818, "lng": 99.93842, "detail": "จุดข้ามถนนหนาแน่นช่วงพักเที่ยง ไฟส่องสว่างน้อยตอนกลางคืน" },
+        { "name": "ซอยหลังอาคารวิทยาศาสตร์", "lat": 7.80902, "lng": 99.93906, "detail": "ไฟส่องสว่างน้อยในเวลากลางคืน ระวังพื้นถนนขรุขระ" }
+      ]
+    }
+  ],
+  "markets": [
+    { "name": "ตลาดนัดหน้ามอ", "lat": 7.80760, "lng": 99.94030, "detail": "ตลาดนัดปากทางเข้าวิทยาเขตพัทลุง เปิดทุกเย็นวันพุธ", "distanceKm": 0.4, "emoji": "🏪" },
+    { "name": "ตลาดป่าพะยอม", "lat": 7.83410, "lng": 99.94310, "detail": "ตลาดสดประจำอำเภอป่าพะยอม ห่างจากมหาวิทยาลัยประมาณ 4 กม.", "distanceKm": 4.0, "emoji": "🛒" },
+    { "name": "ตลาดบ้านพร้าว", "lat": 7.80230, "lng": 99.93320, "detail": "ตลาดสดในย่านบ้านพร้าว ใกล้กับแนวถนนสายหลัก", "distanceKm": 1.5, "emoji": "🥬" }
+  ],
+  "shortcuts": [
+    { "id": "markets", "label": "ตลาดใกล้ฉัน", "icon": "🏪", "color": "#43A047", "action": "markets" },
+    { "id": "emergency", "label": "เบอร์ฉุกเฉิน", "icon": "📞", "color": "#E53935", "action": "emergency" },
+    { "id": "tram", "label": "จุดรถราง", "icon": "🚎", "color": "#1E88E5", "action": "toggleLayer", "layerId": "tram" }
+  ]
+};
+
+// ── Map ──
+let map, markerLayers = {};
+
+function formatPhone(num) {
+  if (num.length === 10 && num.startsWith('0')) {
+    return num.slice(0,3) + '-' + num.slice(3,6) + '-' + num.slice(6);
+  }
+  return num;
+}
+
+async function loadConfig() {
+  try {
+    const res = await fetch('config/app_config.json');
+    if (res.ok) { CONFIG = await res.json(); return; }
+  } catch {}
+  CONFIG = EMBEDDED_CONFIG;
+}
+
+function initMap() {
+  const c = CONFIG.map.center;
+  map = L.map('map', {
+    center: [c.lat, c.lng],
+    zoom: CONFIG.map.zoom,
+    minZoom: CONFIG.map.minZoom,
+    maxZoom: CONFIG.map.maxZoom,
+    zoomControl: false,
+  });
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(map);
+  updateMarkers();
+}
+
+function updateMarkers() {
+  Object.values(markerLayers).forEach(ml => map.removeLayer(ml));
+  markerLayers = {};
+
+  CONFIG.layers.forEach(layer => {
+    if (!layer.enabled) return;
+    const fg = L.featureGroup();
+    layer.locations.forEach(loc => {
+      const icon = L.divIcon({
+        className: '',
+        html: `
+          <div style="text-align:center;">
+            <div style="background:#fff;border-radius:50%;padding:4px 5px;box-shadow:0 1px 4px rgba(0,0,0,.3);display:inline-block;font-size:16px;">${layer.emoji}</div>
+            <div style="background:${layer.color};color:#fff;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap;margin-top:1px;box-shadow:0 1px 3px rgba(0,0,0,.2);">${loc.name}</div>
+          </div>`,
+        iconSize: [150, 40],
+        iconAnchor: [75, 40],
+      });
+      const m = L.marker([loc.lat, loc.lng], { icon }).addTo(fg);
+      m.on('click', () => showPlace(layer, loc));
+    });
+    fg.addTo(map);
+    markerLayers[layer.id] = fg;
+  });
+}
+
+// ── Sidebar ──
+function buildSidebar() {
+  document.getElementById('app-title').textContent = CONFIG.app.name;
+  document.getElementById('campus-name').textContent = CONFIG.app.campusName;
+  document.getElementById('fab-phone').textContent = formatPhone(CONFIG.app.emergencyNumber);
+
+  const container = document.getElementById('layer-filters');
+  container.innerHTML = '';
+  CONFIG.layers.forEach(layer => {
+    const div = document.createElement('div');
+    div.className = 'layer-item';
+    div.innerHTML = `
+      <div class="layer-icon" style="background:${layer.color}">${layer.emoji}</div>
+      <div class="layer-info">
+        <div class="layer-name">${layer.name}</div>
+        <div class="layer-desc">${LAYER_DESC[layer.id] || ''}</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" ${layer.enabled ? 'checked' : ''} onchange="toggleLayer('${layer.id}')">
+        <span class="slider"></span>
+      </label>`;
+    container.appendChild(div);
+  });
+}
+
+function toggleLayer(id) {
+  const layer = CONFIG.layers.find(l => l.id === id);
+  if (layer) { layer.enabled = !layer.enabled; updateMarkers(); }
+}
+
+// ── Bottom bar ──
+function buildBottomBar() {
+  const bar = document.getElementById('bottombar');
+  bar.innerHTML = '';
+  CONFIG.shortcuts.forEach(sc => {
+    const btn = document.createElement('button');
+    btn.className = 'shortcut-btn';
+    const isActive = sc.action === 'toggleLayer' && sc.layerId &&
+      CONFIG.layers.find(l => l.id === sc.layerId)?.enabled;
+    btn.innerHTML = `
+      <div class="shortcut-circle" style="background:${isActive ? sc.color : sc.color + '22'}; color:${isActive ? '#fff' : sc.color}">${sc.icon}</div>
+      <span class="shortcut-label">${sc.label}</span>`;
+    btn.onclick = () => runShortcut(sc);
+    bar.appendChild(btn);
+  });
+}
+
+function runShortcut(sc) {
+  if (sc.action === 'markets') showMarkets();
+  else if (sc.action === 'emergency') showEmergency();
+  else if (sc.action === 'toggleLayer' && sc.layerId) {
+    toggleLayer(sc.layerId);
+    buildSidebar();
+    buildBottomBar();
+  }
+}
+
+// ── Search ──
+function onSearch(q) {
+  const box = document.getElementById('search-results');
+  q = q.trim().toLowerCase();
+  if (!q) { box.classList.remove('active'); box.innerHTML = ''; return; }
+
+  const results = [];
+  CONFIG.layers.forEach(layer => {
+    layer.locations.forEach(loc => {
+      if (loc.name.toLowerCase().includes(q)) {
+        results.push({ name: loc.name, cat: layer.name, emoji: layer.emoji, lat: loc.lat, lng: loc.lng });
+      }
+    });
+  });
+  CONFIG.markets.forEach(mk => {
+    if (mk.name.toLowerCase().includes(q)) {
+      results.push({ name: mk.name, cat: 'ตลาด', emoji: mk.emoji, lat: mk.lat, lng: mk.lng });
+    }
+  });
+
+  if (!results.length) { box.classList.remove('active'); box.innerHTML = ''; return; }
+  box.innerHTML = results.slice(0, 8).map(r =>
+    `<div class="search-item" onclick="selectPlace(${r.lat},${r.lng},'${r.name}')">
+      <span class="icon">${r.emoji}</span>
+      <div><div class="name">${r.name}</div><div class="cat">${r.cat}</div></div>
+    </div>`
+  ).join('');
+  box.classList.add('active');
+}
+
+function selectPlace(lat, lng, name) {
+  document.getElementById('search-box').value = '';
+  document.getElementById('search-results').classList.remove('active');
+  map.setView([lat, lng], 17);
+}
+
+// ── Modals ──
+function showEmergency() {
+  const phone = CONFIG.app.emergencyNumber;
+  document.getElementById('modal-phone').textContent = formatPhone(phone);
+  document.getElementById('modal-phone-desc').textContent = CONFIG.app.emergencyLabel;
+  document.getElementById('modal-call-btn').href = 'tel:' + phone;
+  document.getElementById('emergency-modal').classList.add('active');
+}
+function closeEmergency() { document.getElementById('emergency-modal').classList.remove('active'); }
+
+function showMarkets() {
+  const palette = ['#E91E63', '#43A047', '#5D9CEC', '#8E24AA'];
+  const body = document.getElementById('markets-body');
+  body.innerHTML = CONFIG.markets.map((mk, i) => {
+    const color = palette[i % palette.length];
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${mk.lat},${mk.lng}&travelmode=driving`;
+    return `
+      <div class="market-card" style="border-left-color:${color}">
+        <span class="market-emoji">${mk.emoji}</span>
+        <div class="market-info">
+          <div class="market-name">${mk.name}</div>
+          <div class="market-dist">📍 ${mk.distanceKm} กม.</div>
+          <div class="market-detail">${mk.detail}</div>
+          <a class="market-nav" href="${url}" target="_blank">📍 นำทางไป Google Maps →</a>
+        </div>
+      </div>`;
+  }).join('');
+  document.getElementById('markets-modal').classList.add('active');
+}
+function closeMarkets() { document.getElementById('markets-modal').classList.remove('active'); }
+
+function showPlace(layer, loc) {
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=driving`;
+  document.getElementById('place-body').innerHTML = `
+    <div class="place-info">
+      <div class="place-category">
+        <div class="place-cat-icon" style="background:${layer.color}">${layer.emoji}</div>
+        <span class="place-cat-name">${layer.name}</span>
+      </div>
+      <div class="place-name">${loc.name}</div>
+      <div class="place-detail">${loc.detail}</div>
+      <a class="place-nav-btn" href="${url}" target="_blank">📍 นำทางไป Google Maps</a>
+    </div>`;
+  document.getElementById('place-modal').classList.add('active');
+}
+function closePlace() { document.getElementById('place-modal').classList.remove('active'); }
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// Close search on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-box') && !e.target.closest('#search-results')) {
+    document.getElementById('search-results').classList.remove('active');
+  }
+});
+
+// ESC to close modals
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeEmergency(); closeMarkets(); closePlace();
+  }
+});
+
+// ── Init ──
+(async function() {
+  await loadConfig();
+  buildSidebar();
+  buildBottomBar();
+  initMap();
+})();
+</script>
+</body>
+</html>
