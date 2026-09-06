@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 
-import '../models/app_config.dart';
+import '../utils/app_icons.dart';
 
+/// หมุดบนแผนที่: วงกลมสีของชั้นข้อมูล + ป้ายชื่อสถานที่
+///
+/// ใช้ไอคอน Material ตามชื่อที่กำหนดใน config (ไม่ใช้ emoji เพราะบางแพลตฟอร์ม
+/// โดยเฉพาะ Windows/เว็บบางเบราว์เซอร์ วาด emoji ไม่ครบสี)
 class LocationMarker extends StatelessWidget {
-  final LocationPoint location;
+  final String label;
   final Color color;
-  final String emoji;
-  final VoidCallback onTap;
+  final String icon;
+  final VoidCallback? onTap;
 
   const LocationMarker({
     super.key,
-    required this.location,
+    required this.label,
     required this.color,
-    required this.emoji,
-    required this.onTap,
+    required this.icon,
+    this.onTap,
   });
 
   @override
@@ -24,34 +28,36 @@ class LocationMarker extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: const [
-                BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 1)),
-              ],
-            ),
-            child: Text(
-              emoji,
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(top: 2),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(8),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 3),
+              boxShadow: const [
+                BoxShadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 2)),
+              ],
             ),
-            child: Text(
-              location.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+            child: Icon(iconFromConfig(icon), size: 18, color: Colors.white),
+          ),
+          const SizedBox(height: 3),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
                 color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+                borderRadius: BorderRadius.circular(7),
+                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+              ),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF1A1A1A),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

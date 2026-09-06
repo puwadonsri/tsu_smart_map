@@ -8,302 +8,593 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
+:root{
+  --navy:#0D47A1;      /* ธีมสีหลักตาม requirement */
+  --blue:#1976D2;
+  --red:#E53935;
+  --red-dark:#C62828;
+  --ink:#1a1a1a;
+  --muted:#8a8f98;
+  --line:#eceff1;
+  --bar-h:104px;       /* ความสูงจริงของ bottom bar ใช้กันไม่ให้ FAB ทับ */
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Segoe UI',Roboto,Tahoma,sans-serif;overflow:hidden;height:100vh;width:100vw;background:#0D47A1}
+body{font-family:'Segoe UI',Roboto,Tahoma,sans-serif;overflow:hidden;height:100vh;width:100vw;background:var(--navy);color:var(--ink)}
+button{font-family:inherit}
 .ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;user-select:none}
 
-/* Splash */
-#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#5D9CEC,#1976D2);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+/* ---------- 1. Splash ---------- */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(170deg,#5D9CEC 0%,#1976D2 55%,#0D47A1 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;transition:opacity .5s}
 #splash.hide{opacity:0;pointer-events:none}
-#splash .icon{font-size:96px;color:#fff;animation:bounce 1.4s ease-in-out infinite}
-#splash h1{color:#fff;font-size:36px;font-weight:800;letter-spacing:2px;margin-top:14px;line-height:1.2}
-#splash p{color:rgba(255,255,255,.92);font-size:16px;margin-top:8px}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+#splash .pin{width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;animation:bounce 1.6s ease-in-out infinite}
+#splash .pin .ms{font-size:60px;color:#fff}
+#splash h1{color:#fff;font-size:40px;font-weight:800;letter-spacing:1px;margin-top:20px;line-height:1.15}
+#splash h1 small{display:block;font-size:24px;font-weight:600;letter-spacing:0}
+#splash .campus{color:rgba(255,255,255,.95);font-size:16px;margin-top:10px}
+#splash .tagline{color:rgba(255,255,255,.8);font-size:14px;margin-top:6px;font-style:italic}
+#splash .brand{position:absolute;bottom:44px;color:rgba(255,255,255,.85);font-size:12px;letter-spacing:3px;font-weight:600}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
-/* Map */
-#map{position:fixed;inset:0;z-index:1}
-
-/* Top bar */
-#topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent)}
-.btn-menu,.btn-search{width:42px;height:42px;border:none;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff}
-.btn-menu .ms{font-size:24px;color:#0D47A1}
-.search{flex:1;height:42px;border:none;border-radius:21px;padding:0 16px 0 14px;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);outline:none}
+/* ---------- 2. Map + top bar ---------- */
+#map{position:fixed;inset:0;z-index:1;background:#e8eaed}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent)}
+.btn-round{width:44px;height:44px;border:none;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.22);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-round .ms{font-size:24px;color:var(--navy)}
 .search-wrap{flex:1;position:relative}
-.search-wrap .ms{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:20px;color:#999;pointer-events:none}
-.search-wrap input{width:100%;height:42px;border:none;border-radius:21px;padding:0 16px 0 42px;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);outline:none}
+.search-wrap>.ms{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px;color:#9aa0a6;pointer-events:none}
+.search-wrap input{width:100%;height:44px;border:none;border-radius:22px;padding:0 16px 0 44px;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.22);outline:none;font-family:inherit}
 
-/* Search results */
-#sresults{position:fixed;top:62px;left:14px;right:14px;z-index:99;background:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-height:320px;overflow-y:auto;display:none}
+#sresults{position:fixed;top:66px;left:14px;right:14px;z-index:99;background:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-height:320px;overflow-y:auto;display:none}
 #sresults.on{display:block}
-.sri{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0}
+.sri{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
 .sri:last-child{border-bottom:none}
 .sri:active{background:#e3f2fd}
-.sri .si{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sri .si .ms{font-size:18px;color:#fff}
+.si{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:32px;height:32px;border-radius:50%}
+.si .ms{font-size:18px;color:#fff}
 .sri .nm{font-size:14px;font-weight:600}
-.sri .ct{font-size:11px;color:#888}
+.sri .ct{font-size:11px;color:var(--muted)}
+.sempty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
 
-/* FAB */
-#fab{position:fixed;right:14px;bottom:90px;z-index:100;background:#E53935;color:#fff;border:none;border-radius:16px;padding:10px 16px;cursor:pointer;box-shadow:0 4px 14px rgba(229,57,53,.5);display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;text-align:left;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 4px 14px rgba(229,57,53,.5)}50%{box-shadow:0 4px 24px rgba(229,57,53,.8)}}
+/* ปุ่มควบคุมแผนที่ด้านขวา (ตำแหน่งฉัน / กลับจุดกึ่งกลาง) */
+#mapctl{position:fixed;right:14px;z-index:100;display:flex;flex-direction:column;gap:10px;bottom:calc(var(--bar-h) + 74px)}
+#mapctl .btn-round{width:46px;height:46px}
+
+/* ปุ่มฉุกเฉินลอย — วางเหนือ bottom bar ไม่ให้ทับกัน */
+#fab{position:fixed;right:14px;bottom:calc(var(--bar-h) + 12px);z-index:100;background:var(--red);color:#fff;border:none;border-radius:16px;padding:10px 16px;cursor:pointer;box-shadow:0 4px 14px rgba(229,57,53,.5);display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;text-align:left;line-height:1.35;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 4px 14px rgba(229,57,53,.5)}50%{box-shadow:0 4px 24px rgba(229,57,53,.85)}}
 #fab .ms{font-size:24px}
 
-/* Bottom bar */
-#bbar{position:fixed;bottom:12px;left:14px;right:14px;z-index:100;background:#fff;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.25);display:flex;padding:14px 8px;justify-content:space-around}
-.sbtn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 8px;border:none;background:transparent;border-radius:12px;cursor:pointer;flex:1}
-.sc{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+/* แถบทางลัดด้านล่าง */
+#bbar{position:fixed;bottom:12px;left:14px;right:14px;z-index:100;background:#fff;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.25);display:flex;padding:12px 8px;justify-content:space-around}
+.sbtn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:2px 8px;border:none;background:transparent;border-radius:12px;cursor:pointer;flex:1}
+.sc{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
 .sc .ms{font-size:26px}
-.slb{font-size:11px;font-weight:700;white-space:nowrap}
+.slb{font-size:11px;font-weight:700;white-space:nowrap;color:var(--ink)}
 
-/* Drawer overlay */
+/* ---------- 3. Drawer ---------- */
 #dov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s}
 #dov.on{opacity:1;pointer-events:all}
-
-/* Drawer */
-#drawer{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:300px;z-index:201;background:#fff;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+#drawer{position:fixed;top:0;left:0;bottom:0;width:84%;max-width:320px;z-index:201;background:#fff;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
 #drawer.on{transform:translateX(0)}
-#dhead{background:#0D47A1;color:#fff;padding:20px 16px 14px}
+#dhead{background:var(--navy);color:#fff;padding:22px 16px 16px}
 #dhead h2{font-size:18px}
-#dhead p{font-size:11px;opacity:.85;margin-top:2px}
-.dtitle{padding:14px 16px 6px;font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
-.dtitle .x{background:none;border:none;font-size:18px;cursor:pointer;color:#555}
-#dfilters{padding:0 12px 16px;overflow-y:auto;flex:1}
-.li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;margin-bottom:6px}
-.lc{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#dhead p{font-size:11px;opacity:.85;margin-top:3px}
+.dtitle{padding:16px 16px 4px;font-size:17px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.dtitle .x{background:none;border:none;cursor:pointer;color:#555;display:flex;padding:4px}
+#dfilters{padding:0 10px 20px;overflow-y:auto;flex:1}
+.dgroup{font-size:12px;font-weight:700;color:var(--muted);padding:14px 8px 6px}
+.li{display:flex;align-items:center;gap:12px;padding:8px}
+.li .lbtn{display:flex;align-items:center;gap:12px;flex:1;background:none;border:none;padding:4px 0;cursor:pointer;text-align:left;min-width:0}
+.lc{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .lc .ms{font-size:22px;color:#fff}
-.lf{flex:1}
-.ln{font-weight:600;font-size:14px}
-.ld{font-size:11px;color:#888;margin-top:2px}
+.lf{flex:1;min-width:0}
+.ln{display:block;font-weight:700;font-size:14px}
+.ld{display:block;font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
 .tg{position:relative;width:46px;height:26px;flex-shrink:0}
 .tg input{opacity:0;width:0;height:0}
 .tg .sl{position:absolute;inset:0;background:#ccc;border-radius:26px;cursor:pointer;transition:.3s}
 .tg .sl:before{content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.3s}
-.tg input:checked+.sl{background:#1976D2}
+.tg input:checked+.sl{background:var(--blue)}
 .tg input:checked+.sl:before{transform:translateX(20px)}
 
-/* Bottom sheet */
+/* ---------- Bottom sheets ---------- */
 .bov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s}
 .bov.on{opacity:1;pointer-events:all}
-.bsh{position:fixed;bottom:0;left:0;right:0;z-index:301;background:#fff;border-radius:20px 20px 0 0;padding:18px 18px 24px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:82vh;overflow-y:auto}
+.bsh{position:fixed;bottom:0;left:0;right:0;z-index:301;background:#fff;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:86vh;display:flex;flex-direction:column}
 .bsh.on{transform:translateY(0)}
-.grab{width:40px;height:4px;border-radius:4px;background:#ccc;margin:0 auto 10px}
-.stit{font-size:18px;font-weight:700;margin-bottom:14px;text-align:center}
+.shead{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--navy);color:#fff;border-radius:20px 20px 0 0;flex-shrink:0}
+.shead .back{background:none;border:none;color:#fff;display:flex;cursor:pointer;padding:2px}
+.shead h3{font-size:17px;font-weight:700;flex:1}
+.sbody{padding:16px 18px 24px;overflow-y:auto}
 
-/* Emergency */
-#esh{background:linear-gradient(180deg,#E53935,#C62828);color:#fff}
-#esh .grab{background:rgba(255,255,255,.4)}
-.ec{text-align:center;padding:20px 4px 8px}
-.ec .ms{font-size:72px}
-.ec .lb{font-size:22px;margin:12px 0 4px}
-.ec .ph{font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:8px}
-.ec .ds{font-size:15px;opacity:.9;margin-bottom:28px}
-.ec .cb{display:block;background:#fff;color:#E53935;padding:16px 0;border-radius:30px;font-size:18px;font-weight:800;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+/* ---------- 6. Emergency (เต็มหน้าจอสีแดง) ---------- */
+#esh{background:linear-gradient(180deg,var(--red) 0%,var(--red-dark) 100%);color:#fff;top:0;border-radius:0;max-height:none}
+#esh .shead{background:transparent;border-radius:0}
+#esh .sbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 28px 40px}
+.ering{width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;animation:ring 1.8s ease-in-out infinite}
+.ering .inner{width:126px;height:126px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center}
+.ering .ms{font-size:64px;color:#fff}
+@keyframes ring{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.ec-lb{font-size:22px;font-weight:600;margin-top:28px}
+.ec-ph{font-size:40px;font-weight:800;letter-spacing:2px;margin-top:6px}
+.ec-ds{font-size:15px;opacity:.9;margin-top:10px;line-height:1.5}
+.ec-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:340px;background:#fff;color:var(--red);padding:17px 0;border-radius:32px;font-size:18px;font-weight:800;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25);margin-top:44px}
 
-/* Market */
-.mc{background:#f8f9fa;border-radius:12px;padding:14px;margin-bottom:12px;border-left:4px solid}
-.mc .row{display:flex;align-items:center;gap:10px}
-.mc .mi{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mc .mi .ms{font-size:24px}
-.mn{font-weight:700;font-size:16px}
-.md{font-size:12px;color:#888;margin-top:2px}
-.mt{font-size:13px;color:#555;margin-top:4px}
-.mnav{display:inline-flex;align-items:center;gap:4px;color:#0D47A1;font-size:13px;font-weight:600;margin-top:8px;text-decoration:none}
+/* ---------- 4. รายการตลาด ---------- */
+.mc{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.mc:active{background:#f5f8ff}
+.mi{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mi .ms{font-size:28px}
+.mtext{flex:1;min-width:0}
+.mn{display:block;font-weight:700;font-size:15px}
+.meta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin-top:4px;flex-wrap:wrap}
+.meta span{display:inline-flex;align-items:center;gap:3px}
+.meta .ms{font-size:14px}
+.mt{display:block;font-size:12px;color:#5f6368;margin-top:4px;line-height:1.4}
+.allbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:#E8F0FE;color:var(--navy);border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
 
-/* Place */
-.pc{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.pci{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.pci .ms{font-size:22px;color:#fff}
-.pcn{font-size:12px;color:#888}
-.pn{font-size:18px;font-weight:700;margin-bottom:8px}
-.pd{font-size:14px;color:#555;margin-bottom:18px;line-height:1.5}
-.pnb{display:block;width:100%;padding:15px;background:#0D47A1;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+/* ---------- 5. รายละเอียดตลาด / จุดบนแผนที่ ---------- */
+.dhero{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.dname{display:block;font-size:20px;font-weight:800}
+.ddetail{font-size:14px;color:#5f6368;line-height:1.55;margin:12px 0 18px}
+.drow{display:flex;gap:10px;margin-bottom:20px}
+.dbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;border:none}
+.dbtn.primary{background:var(--navy);color:#fff}
+.dbtn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.dsub{font-size:14px;font-weight:700;margin-bottom:10px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:6px;background:#f1f3f4;border-radius:10px;padding:10px 14px;font-size:12px;color:#3c4043}
+.chip .ms{font-size:18px;color:var(--navy)}
+.chip b{font-weight:700}
+
+/* ---------- 7/8. รายการจุดในชั้นข้อมูล ---------- */
+.lrow{display:flex;align-items:center;gap:12px;padding:14px 4px;border:none;border-bottom:1px solid var(--line);cursor:pointer;background:none;width:100%;text-align:left}
+.lrow:last-child{border-bottom:none}
+.lrow:active{background:#f5f8ff}
+.lnum{width:24px;font-size:14px;font-weight:700;color:var(--muted);flex-shrink:0}
+.lname{flex:1;min-width:0;font-size:14px;font-weight:600}
+.lname small{display:block;font-weight:400;font-size:11px;color:var(--muted);margin-top:2px}
+.lrow>.ms{color:#c0c4c9}
 </style>
 </head>
 <body>
 
+<!-- 1. หน้าเปิดแอป -->
 <div id="splash">
-  <div style="text-align:center">
-    <div class="icon"><span class="ms">map</span></div>
-    <h1>TSU<br>Smart Map</h1>
-    <p>แผนที่อัจฉริยะ ม.ทักษิณ พัทลุง</p>
-  </div>
+  <div class="pin"><span class="ms">location_on</span></div>
+  <h1>TSU<br><small>Smart Map</small></h1>
+  <p class="campus" id="spCampus"></p>
+  <p class="tagline" id="spTag"></p>
+  <div class="brand">THAKSIN UNIVERSITY</div>
 </div>
 
+<!-- 2. หน้าแรก: แผนที่เต็มหน้าจอ -->
 <div id="map"></div>
 
 <div id="topbar">
-  <button class="btn-menu" id="menuBtn"><span class="ms">menu</span></button>
+  <button class="btn-round" id="menuBtn" aria-label="เมนู"><span class="ms">menu</span></button>
   <div class="search-wrap">
     <span class="ms">search</span>
-    <input class="search" id="sbox" type="text" placeholder="ค้นหาสถานที่ ภายใน ม.ทักษิณ...">
+    <input id="sbox" type="text" placeholder="ค้นหาสถานที่ ภายใน ม.ทักษิณ พัทลุง">
   </div>
 </div>
 <div id="sresults"></div>
 
+<div id="mapctl">
+  <button class="btn-round" id="locBtn" aria-label="ตำแหน่งของฉัน"><span class="ms">my_location</span></button>
+  <button class="btn-round" id="homeBtn" aria-label="กลับไปกลางมหาวิทยาลัย"><span class="ms">near_me</span></button>
+</div>
+
 <button id="fab">
   <span class="ms">phone_in_talk</span>
-  <span>เบอร์ฉุกเฉิน<br><span id="fphone"></span></span>
+  <span id="fabLabel"></span>
 </button>
 
 <div id="bbar"></div>
 
+<!-- 3. แถบด้านข้าง: ตัวกรองชั้นข้อมูล -->
 <div id="dov"></div>
 <div id="drawer">
-  <div id="dhead"><h2 id="dname">TSU Smart Map</h2><p id="dcampus">มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง</p></div>
-  <div class="dtitle"><span>ตัวกรองชั้นข้อมูล</span><button class="x" id="dclose">✕</button></div>
+  <div id="dhead"><h2 id="dname"></h2><p id="dcampus"></p></div>
+  <div class="dtitle"><span>ตัวกรองชั้นข้อมูล</span><button class="x" id="dclose" aria-label="ปิด"><span class="ms">close</span></button></div>
   <div id="dfilters"></div>
 </div>
 
+<!-- 6. หน้าโทรฉุกเฉิน -->
 <div class="bov" id="eov"></div>
 <div class="bsh" id="esh">
-  <div class="grab"></div>
-  <div class="ec">
-    <span class="ms" style="color:#fff">phone_in_talk</span>
-    <div class="lb">โทรออกทันที</div>
-    <div class="ph" id="eph"></div>
-    <div class="ds" id="eds"></div>
-    <a class="cb" id="ecall" href="">กดโทรออก</a>
+  <div class="shead"><button class="back" data-close="e" aria-label="ย้อนกลับ"><span class="ms">arrow_back</span></button><h3 id="etitle"></h3></div>
+  <div class="sbody">
+    <div class="ering"><div class="inner"><span class="ms">call</span></div></div>
+    <div class="ec-lb">โทรออกทันที</div>
+    <div class="ec-ph" id="eph"></div>
+    <div class="ec-ds" id="eds"></div>
+    <a class="ec-btn" id="ecall" href="#"><span class="ms">call</span> กดโทรออก</a>
   </div>
 </div>
 
+<!-- 4. รายชื่อตลาดใกล้มหาวิทยาลัย -->
 <div class="bov" id="mov"></div>
 <div class="bsh" id="msh">
-  <div class="grab"></div>
-  <div class="stit">🏪 ตลาดใกล้มหาวิทยาลัย</div>
-  <div id="mbody"></div>
+  <div class="shead"><button class="back" data-close="m" aria-label="ย้อนกลับ"><span class="ms">arrow_back</span></button><h3>ตลาดใกล้มหาวิทยาลัย</h3></div>
+  <div class="sbody" id="mbody"></div>
 </div>
 
+<!-- 5. รายละเอียด (ตลาด / จุดบนแผนที่) -->
 <div class="bov" id="pov"></div>
 <div class="bsh" id="psh">
-  <div class="grab"></div>
-  <div id="pbody"></div>
+  <div class="shead"><button class="back" data-close="p" aria-label="ย้อนกลับ"><span class="ms">arrow_back</span></button><h3 id="ptitle"></h3></div>
+  <div class="sbody" id="pbody"></div>
+</div>
+
+<!-- 7/8. รายการจุดทั้งหมดของชั้นข้อมูล -->
+<div class="bov" id="lov"></div>
+<div class="bsh" id="lsh">
+  <div class="shead"><button class="back" data-close="l" aria-label="ย้อนกลับ"><span class="ms">arrow_back</span></button><h3 id="ltitle"></h3></div>
+  <div class="sbody" id="lbody"></div>
 </div>
 
 <script>
-const LI={tram:'directions_bus',fuel:'local_gas_station',scooter:'electric_scooter',caution:'warning_amber'};
-const LD={tram:'ศาลาที่จอดรถราง',fuel:'ปั๊มน้ำมัน / จุดเติมใกล้เคียง',scooter:'จอด / เช่าสกู๊ตเตอร์ไฟฟ้า',caution:'ทางแยกอุบัติเหตุบ่อย'};
-function SI(sc){return sc.icon==='storefront'?'storefront':sc.icon==='phone_in_talk'?'phone_in_talk':sc.icon==='directions_bus'?'directions_bus':sc.icon==='local_gas_station'?'local_gas_station':sc.icon==='electric_scooter'?'electric_scooter':sc.icon==='warning'?'warning_amber':'place'}
+'use strict';
 
-const DEF={"app":{"name":"TSU Smart Map","campusName":"มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง","emergencyNumber":"0928733748","emergencyLabel":"เบอร์ฉุกเฉิน (รถเสีย / อุบัติเหตุ)"},"map":{"center":{"lat":7.80822,"lng":99.93869},"zoom":16,"minZoom":12,"maxZoom":19},"layers":[{"id":"tram","name":"จุดรถราง","emoji":"🚎","enabled":true,"color":"#1E88E5","locations":[{"name":"ศาลารถราง โซนหน้าประตูทางเข้า","lat":7.80755,"lng":99.93895,"detail":"จุดจอดรถรางเที่ยวแรกของมหาวิทยาลัย อยู่ฝั่งช่องทางออก"},{"name":"ศาลารถราง ศูนย์อาหาร","lat":7.80836,"lng":99.93848,"detail":"จุดจอดหน้าร้านอาหารและร้านสะดวกซื้อ"},{"name":"ศาลารถราง อาคารเรียนรวม","lat":7.80862,"lng":99.93968,"detail":"จุดจอดหน้าโถงอาคารเรียนรวมฝั่งตะวันออก"},{"name":"ศาลารถราง หอพักนักศึกษา","lat":7.80698,"lng":99.93821,"detail":"จุดจอดบริเวณด้านหน้าหอพักรวม"}]},{"id":"fuel","name":"จุดเติมน้ำมัน","emoji":"⛽","enabled":true,"color":"#43A047","locations":[{"name":"ปั๊มน้ำมันสวัสดิการในมหาวิทยาลัย","lat":7.80725,"lng":99.93805,"detail":"ปั๊มสวัสดิการ จำหน่ายน้ำมันและบริการเติมลม"},{"name":"สถานีบริการน้ำมัน หน้าประตูมหาวิทยาลัย","lat":7.80782,"lng":99.94015,"detail":"ปั๊มใกล้ประตูทางเข้า เปิด 24 ชั่วโมง"}]},{"id":"scooter","name":"จุดสกู๊ตเตอร์","emoji":"🛴","enabled":true,"color":"#FB8C00","locations":[{"name":"จุดเช่าสกู๊ตเตอร์ไฟฟ้า หน้าหอพัก","lat":7.80682,"lng":99.93858,"detail":"พื้นที่จอดและเช่าสกู๊ตเตอร์ไฟฟ้า (Beam / Lime)"},{"name":"จุดจอดสกู๊ตเตอร์ อาคารเรียนรวม","lat":7.80847,"lng":99.93955,"detail":"จุดจอดสกู๊ตเตอร์ฝั่งตะวันออกของอาคารเรียนรวม"},{"name":"จุดจอดสกู๊ตเตอร์ สนามกีฬา","lat":7.80742,"lng":99.94050,"detail":"จุดจอดบริเวณทางเข้าสนามกีฬากลาง"}]},{"id":"caution","name":"จุดควรระมัดระวัง","emoji":"⚠️","enabled":true,"color":"#E53935","locations":[{"name":"ทางแยกหน้าประตูมหาวิทยาลัย","lat":7.80766,"lng":99.93970,"detail":"ทางแยกที่เกิดอุบัติเหตุบ่อย โปรดชะลอความเร็ว"},{"name":"ทางข้ามหน้าโรงอาหาร","lat":7.80818,"lng":99.93842,"detail":"จุดข้ามถนนหนาแน่นช่วงพักเที่ยง ไฟส่องสว่างน้อยตอนกลางคืน"},{"name":"ซอยหลังอาคารวิทยาศาสตร์","lat":7.80902,"lng":99.93906,"detail":"ไฟส่องสว่างน้อยในเวลากลางคืน ระวังพื้นถนนขรุขระ"}]}],"markets":[{"name":"ตลาดนัดหน้ามอ","lat":7.80760,"lng":99.94030,"detail":"ตลาดนัดปากทางเข้าวิทยาเขตพัทลุง เปิดทุกเย็นวันพุธ","distanceKm":0.4,"emoji":"🏪"},{"name":"ตลาดป่าพะยอม","lat":7.83410,"lng":99.94310,"detail":"ตลาดสดประจำอำเภอป่าพะยอม ห่างจากมหาวิทยาลัยประมาณ 4 กม.","distanceKm":4.0,"emoji":"🛒"},{"name":"ตลาดบ้านพร้าว","lat":7.80230,"lng":99.93320,"detail":"ตลาดสดในย่านบ้านพร้าว ใกล้กับแนวถนนสายหลัก","distanceKm":1.5,"emoji":"🥬"}],"shortcuts":[{"id":"markets","label":"ตลาดใกล้ฉัน","icon":"storefront","color":"#43A047","action":"markets"},{"id":"emergency","label":"เบอร์ฉุกเฉิน","icon":"phone_in_talk","color":"#E53935","action":"emergency"},{"id":"tram","label":"จุดรถราง","icon":"directions_bus","color":"#1E88E5","action":"toggleLayer","layerId":"tram"}]};
+/* ===== config ที่ฝังมากับแอป (ใช้เมื่อโหลดไฟล์ภายนอกไม่ได้) ===== */
+const DEFAULT_CONFIG = {"app":{"name":"TSU Smart Map","campusName":"มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง","emergencyNumber":"0928733748","emergencyLabel":"สำหรับรถเสีย / อุบัติเหตุ ภายใน ม.ทักษิณ พัทลุง","tagline":"เดินทางสะดวก ปลอดภัย ใกล้คุณ","emergencyTitle":"เบอร์ฉุกเฉิน"},"map":{"center":{"lat":7.80822,"lng":99.93869},"zoom":16,"minZoom":12,"maxZoom":19,"travel":{"walkKmh":4.5,"driveKmh":30}},"layers":[{"id":"tram","name":"จุดรถราง","emoji":"🚎","icon":"directions_bus","description":"ศาลาที่จอดรถราง","listTitle":"จุดจอดรถรางทั้งหมด","group":"ประเภทสถานที่","enabled":true,"color":"#1E88E5","locations":[{"name":"ศาลารถราง โซนหน้าประตูทางเข้า","lat":7.80755,"lng":99.93895,"detail":"จุดจอดรถรางเที่ยวแรกของมหาวิทยาลัย อยู่ฝั่งช่องทางออก"},{"name":"ศาลารถราง ศูนย์อาหาร","lat":7.80836,"lng":99.93848,"detail":"จุดจอดหน้าร้านอาหารและร้านสะดวกซื้อ"},{"name":"ศาลารถราง อาคารเรียนรวม","lat":7.80862,"lng":99.93968,"detail":"จุดจอดหน้าโถงอาคารเรียนรวมฝั่งตะวันออก"},{"name":"ศาลารถราง หอพักนักศึกษา","lat":7.80698,"lng":99.93821,"detail":"จุดจอดบริเวณด้านหน้าหอพักรวม"}]},{"id":"fuel","name":"จุดเติมน้ำมัน","emoji":"⛽","icon":"local_gas_station","description":"ปั๊มน้ำมันสวัสดิการ / จุดเติมใกล้เคียง","listTitle":"จุดเติมน้ำมันทั้งหมด","group":"ประเภทสถานที่","enabled":true,"color":"#43A047","locations":[{"name":"ปั๊มน้ำมันสวัสดิการในมหาวิทยาลัย","lat":7.80725,"lng":99.93805,"detail":"ปั๊มสวัสดิการ จำหน่ายน้ำมันและบริการเติมลม"},{"name":"สถานีบริการน้ำมัน หน้าประตูมหาวิทยาลัย","lat":7.80782,"lng":99.94015,"detail":"ปั๊มใกล้ประตูทางเข้า เปิด 24 ชั่วโมง"}]},{"id":"scooter","name":"จุดสกู๊ตเตอร์","emoji":"🛴","icon":"electric_scooter","description":"จอด / เช่าสกู๊ตเตอร์ไฟฟ้า","listTitle":"จุดจอด/เช่าสกู๊ตเตอร์ไฟฟ้า","group":"ประเภทสถานที่","enabled":true,"color":"#FB8C00","locations":[{"name":"จุดเช่าสกู๊ตเตอร์ไฟฟ้า หน้าหอพัก","lat":7.80682,"lng":99.93858,"detail":"พื้นที่จอดและเช่าสกู๊ตเตอร์ไฟฟ้า (Beam / Lime)"},{"name":"จุดจอดสกู๊ตเตอร์ อาคารเรียนรวม","lat":7.80847,"lng":99.93955,"detail":"จุดจอดสกู๊ตเตอร์ฝั่งตะวันออกของอาคารเรียนรวม"},{"name":"จุดจอดสกู๊ตเตอร์ สนามกีฬา","lat":7.80742,"lng":99.94050,"detail":"จุดจอดบริเวณทางเข้าสนามกีฬากลาง"}]},{"id":"caution","name":"จุดควรระมัดระวัง","emoji":"⚠️","icon":"warning","description":"ทางแยกอุบัติเหตุบ่อย หรือไฟส่องสว่างน้อย","listTitle":"จุดควรระมัดระวังทั้งหมด","group":"ประเภทสถานที่","enabled":true,"color":"#E53935","locations":[{"name":"ทางแยกหน้าประตูมหาวิทยาลัย","lat":7.80766,"lng":99.93970,"detail":"ทางแยกที่เกิดอุบัติเหตุบ่อย โปรดชะลอความเร็ว"},{"name":"ทางข้ามหน้าโรงอาหาร","lat":7.80818,"lng":99.93842,"detail":"จุดข้ามถนนหนาแน่นช่วงพักเที่ยง ไฟส่องสว่างน้อยตอนกลางคืน"},{"name":"ซอยหลังอาคารวิทยาศาสตร์","lat":7.80902,"lng":99.93906,"detail":"ไฟส่องสว่างน้อยในเวลากลางคืน ระวังพื้นถนนขรุขระ"}]}],"markets":[{"name":"ตลาดนัดหน้ามอ","lat":7.80760,"lng":99.94030,"detail":"ตลาดนัดปากทางเข้าวิทยาเขตพัทลุง เปิดทุกเย็นวันพุธ","distanceKm":0.4,"emoji":"🏪","icon":"storefront"},{"name":"ตลาดป่าพะยอม","lat":7.83410,"lng":99.94310,"detail":"ตลาดสดประจำอำเภอป่าพะยอม ห่างจากมหาวิทยาลัยประมาณ 4 กม.","distanceKm":4.0,"emoji":"🛒","icon":"storefront"},{"name":"ตลาดบ้านพร้าว","lat":7.80230,"lng":99.93320,"detail":"ตลาดสดในย่านบ้านพร้าว ใกล้กับแนวถนนสายหลัก","distanceKm":1.5,"emoji":"🥬","icon":"storefront"}],"shortcuts":[{"id":"markets","label":"ตลาดใกล้ฉัน","icon":"storefront","color":"#43A047","action":"markets"},{"id":"emergency","label":"เบอร์ฉุกเฉิน","icon":"phone_in_talk","color":"#E53935","action":"emergency"},{"id":"tram","label":"จุดรถราง","icon":"directions_bus","color":"#1E88E5","action":"toggleLayer","layerId":"tram"}]};
 
-let C=null,map,ml={};
-function fmt(n){return n.length===10&&n[0]==='0'?n.slice(0,3)+'-'+n.slice(3,6)+'-'+n.slice(6):n}
+/* ชื่อไอคอนแบบสั้นใน config -> ชื่อจริงของ Material Symbols */
+const ICON_ALIAS = {warning:'warning_amber', bus:'directions_bus', market:'storefront', phone:'phone_in_talk'};
+const icon = n => ICON_ALIAS[n] || n || 'place';
 
-async function loadCfg(){
-  try{const r=await fetch('config/app_config.json');if(r.ok){C=await r.json();return}}catch{}
-  try{const r=await fetch('tsu_smart_map/assets/config/app_config.json');if(r.ok){C=await r.json();return}}catch{}
-  C=DEF;
+let C = null, map = null, layerGroups = {}, marketGroup = null, meMarker = null, searchHits = [];
+
+/* ===== utils ===== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtPhone = n => (n && n.length === 10 && n[0] === '0') ? `${n.slice(0,3)}-${n.slice(3,6)}-${n.slice(6)}` : (n || '');
+const dirUrl = (lat, lng, mode = 'driving') =>
+  `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`;
+const minutes = (km, kmh) => Math.max(1, Math.round((km / kmh) * 60));
+const walkMin = km => minutes(km, C.map.travel?.walkKmh ?? 4.5);
+const driveMin = km => minutes(km, C.map.travel?.driveKmh ?? 30);
+const layerById = id => C.layers.find(l => l.id === id);
+
+/* ===== โหลด config: ไฟล์ภายนอกก่อน แล้วค่อย fallback มาที่ config ฝังในตัวแอป ===== */
+async function loadConfig() {
+  for (const url of ['config/app_config.json', 'tsu_smart_map/assets/config/app_config.json']) {
+    try {
+      const res = await fetch(url, {cache: 'no-store'});
+      if (res.ok) { C = await res.json(); return url; }
+    } catch { /* ลอง path ถัดไป */ }
+  }
+  C = DEFAULT_CONFIG;
+  return 'embedded';
 }
 
-function initMap(){
-  map=L.map('map',{center:[C.map.center.lat,C.map.center.lng],zoom:C.map.zoom,minZoom:C.map.minZoom,maxZoom:C.map.maxZoom});
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-  updM();
+/* ===== 1. แผนที่ + หมุด ===== */
+function initMap() {
+  map = L.map('map', {
+    center: [C.map.center.lat, C.map.center.lng],
+    zoom: C.map.zoom, minZoom: C.map.minZoom, maxZoom: C.map.maxZoom,
+    zoomControl: false
+  });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+  }).addTo(map);
+  refreshMarkers();
 }
 
-function micon(la,lo){
-  const ic=LI[la.id]||'place';
-  return L.divIcon({className:'',html:`<div style="text-align:center"><div style="background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,.35);display:inline-block"><span class="ms" style="font-size:20px;color:${la.color}">${ic}</span></div><div style="background:${la.color};color:#fff;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap;margin-top:1px;box-shadow:0 1px 3px rgba(0,0,0,.2)">${lo.name}</div></div>`,iconSize:[150,40],iconAnchor:[75,40]});
+function pinIcon(color, iconName, label) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="text-align:center;transform:translate(-50%,-100%)">
+      <div style="background:${esc(color)};border:3px solid #fff;border-radius:50%;width:38px;height:38px;margin:0 auto;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35)">
+        <span class="ms" style="font-size:20px;color:#fff">${esc(icon(iconName))}</span></div>
+      <div style="background:#fff;color:#1a1a1a;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:700;white-space:nowrap;margin-top:3px;display:inline-block;box-shadow:0 1px 4px rgba(0,0,0,.25)">${esc(label)}</div>
+    </div>`,
+    iconSize: [0, 0], iconAnchor: [0, 0]
+  });
 }
 
-function updM(){
-  Object.values(ml).forEach(f=>map.removeLayer(f));ml={};
-  C.layers.forEach(la=>{
-    if(!la.enabled)return;
-    const fg=L.featureGroup();
-    la.locations.forEach(lo=>{
-      const m=L.marker([lo.lat,lo.lng],{icon:micon(la,lo)}).addTo(fg);
-      m.on('click',()=>showP(la,lo));
+function refreshMarkers() {
+  Object.values(layerGroups).forEach(g => map.removeLayer(g));
+  layerGroups = {};
+  C.layers.forEach(layer => {
+    if (!layer.enabled) return;
+    const group = L.featureGroup();
+    layer.locations.forEach(loc => {
+      L.marker([loc.lat, loc.lng], {icon: pinIcon(layer.color, layer.icon, loc.name)})
+        .addTo(group)
+        .on('click', () => showPlace(layer, loc));
     });
-    fg.addTo(map);ml[la.id]=fg;
+    group.addTo(map);
+    layerGroups[layer.id] = group;
   });
 }
 
-// Drawer
-function openD(){document.getElementById('dov').classList.add('on');document.getElementById('drawer').classList.add('on')}
-function closeD(){document.getElementById('dov').classList.remove('on');document.getElementById('drawer').classList.remove('on')}
-function buildD(){
-  document.getElementById('dname').textContent=C.app.name;
-  document.getElementById('dcampus').textContent=C.app.campusName;
-  document.getElementById('fphone').textContent=fmt(C.app.emergencyNumber);
-  const c=document.getElementById('dfilters');c.innerHTML='';
-  C.layers.forEach(la=>{
-    c.innerHTML+=`<div class="li"><div class="lc" style="background:${la.color}"><span class="ms">${LI[la.id]||'place'}</span></div><div class="lf"><div class="ln">${la.name}</div><div class="ld">${LD[la.id]||''}</div></div><label class="tg"><input type="checkbox" ${la.enabled?'checked':''} onchange="tgL('${la.id}')"><span class="sl"></span></label></div>`;
+/* ปุ่ม "ดูเส้นทางทั้งหมดบนแผนที่" — วางหมุดตลาดทุกจุดแล้วซูมให้เห็นครบ */
+function showAllMarketsOnMap() {
+  if (marketGroup) map.removeLayer(marketGroup);
+  marketGroup = L.featureGroup();
+  C.markets.forEach(mk => {
+    L.marker([mk.lat, mk.lng], {icon: pinIcon('#E91E63', mk.icon || 'storefront', mk.name)})
+      .addTo(marketGroup)
+      .on('click', () => showMarket(mk));
   });
-}
-function tgL(id){const l=C.layers.find(x=>x.id===id);if(l){l.enabled=!l.enabled;updM();buildB();buildD()}}
-
-// Bottom bar
-function buildB(){
-  const b=document.getElementById('bbar');b.innerHTML='';
-  C.shortcuts.forEach(sc=>{
-    const on=sc.action==='toggleLayer'&&sc.layerId&&C.layers.find(l=>l.id===sc.layerId)?.enabled;
-    b.innerHTML+=`<button class="sbtn" onclick="runS('${sc.id}')"><div class="sc" style="background:${on?sc.color:sc.color+'22'};color:${on?'#fff':sc.color}"><span class="ms">${SI(sc)}</span></div><span class="slb">${sc.label}</span></button>`;
-  });
-}
-function runS(id){
-  const sc=C.shortcuts.find(x=>x.id===id);
-  if(sc.action==='markets')showM();
-  else if(sc.action==='emergency')showE();
-  else if(sc.action==='toggleLayer'&&sc.layerId){tgL(sc.layerId)}
+  marketGroup.addTo(map);
+  const bounds = marketGroup.getBounds().extend([C.map.center.lat, C.map.center.lng]);
+  closeAllSheets();
+  map.fitBounds(bounds, {padding: [60, 60], maxZoom: 16});
 }
 
-// Search
-document.getElementById('sbox').addEventListener('input',function(){
-  const q=this.value.trim().toLowerCase(),bx=document.getElementById('sresults');
-  if(!q){bx.classList.remove('on');bx.innerHTML='';return}
-  const rs=[];
-  C.layers.forEach(la=>la.locations.forEach(lo=>{if(lo.name.toLowerCase().includes(q))rs.push({n:lo.name,c:la.name,cl:la.color,lat:lo.lat,lng:lo.lng,id:la.id})}));
-  C.markets.forEach(mk=>{if(mk.name.toLowerCase().includes(q))rs.push({n:mk.name,c:'ตลาด',cl:'#43A047',lat:mk.lat,lng:mk.lng,id:'mk'})});
-  if(!rs.length){bx.classList.remove('on');bx.innerHTML='';return}
-  bx.innerHTML=rs.slice(0,8).map(r=>{
-    const ic=r.id==='mk'?'storefront':LI[r.id]||'place';
-    return`<div class="sri" onclick="selP(${r.lat},${r.lng})"><div class="si" style="background:${r.cl}"><span class="ms">${ic}</span></div><div><div class="nm">${r.n}</div><div class="ct">${r.c}</div></div></div>`;
+/* ===== 3. แถบด้านข้าง (ตัวกรองชั้นข้อมูล) ===== */
+function buildDrawer() {
+  $('dname').textContent = C.app.name;
+  $('dcampus').textContent = C.app.campusName;
+
+  // จัดกลุ่มตามฟิลด์ group ใน config (ถ้าไม่ระบุ ใช้ "ประเภทสถานที่")
+  const groups = new Map();
+  C.layers.forEach(l => {
+    const g = l.group || 'ประเภทสถานที่';
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(l);
+  });
+
+  $('dfilters').innerHTML = [...groups].map(([title, layers]) => `
+    <div class="dgroup">${esc(title)}</div>
+    ${layers.map(l => `
+      <div class="li">
+        <button class="lbtn" data-layer-list="${esc(l.id)}">
+          <span class="lc" style="background:${esc(l.color)}"><span class="ms">${esc(icon(l.icon))}</span></span>
+          <span class="lf"><span class="ln">${esc(l.name)}</span><span class="ld">${esc(l.description || '')}</span></span>
+        </button>
+        <label class="tg"><input type="checkbox" data-layer-toggle="${esc(l.id)}" ${l.enabled ? 'checked' : ''}><span class="sl"></span></label>
+      </div>`).join('')}
+  `).join('');
+}
+
+function toggleLayer(id) {
+  const layer = layerById(id);
+  if (!layer) return;
+  layer.enabled = !layer.enabled;
+  refreshMarkers();
+  buildShortcutBar();
+  // อัปเดตเฉพาะสวิตช์ที่เกี่ยวข้อง ไม่ rebuild drawer ทั้งก้อน
+  const box = $('dfilters').querySelector(`input[data-layer-toggle="${CSS.escape(id)}"]`);
+  if (box) box.checked = layer.enabled;
+}
+
+/* ===== 2. แถบทางลัดด้านล่าง ===== */
+function buildShortcutBar() {
+  $('bbar').innerHTML = C.shortcuts.map(sc => {
+    const active = sc.action === 'toggleLayer' && sc.layerId && layerById(sc.layerId)?.enabled;
+    return `<button class="sbtn" data-shortcut="${esc(sc.id)}">
+      <span class="sc" style="background:${active ? esc(sc.color) : esc(sc.color) + '1F'};color:${active ? '#fff' : esc(sc.color)}"><span class="ms">${esc(icon(sc.icon))}</span></span>
+      <span class="slb">${esc(sc.label)}</span></button>`;
   }).join('');
-  bx.classList.add('on');
-});
-function selP(lat,lng){document.getElementById('sbox').value='';document.getElementById('sresults').classList.remove('on');map.setView([lat,lng],17)}
-document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')&&!e.target.closest('#sresults'))document.getElementById('sresults').classList.remove('on')});
-
-// Sheets
-function openS(name){closeAll();document.getElementById(name+'ov').classList.add('on');document.getElementById(name+'sh').classList.add('on')}
-function closeS(name){document.getElementById(name+'ov').classList.remove('on');document.getElementById(name+'sh').classList.remove('on')}
-function closeAll(){['e','m','p'].forEach(closeS)}
-
-function showE(){
-  document.getElementById('eph').textContent=fmt(C.app.emergencyNumber);
-  document.getElementById('eds').textContent=C.app.emergencyLabel;
-  document.getElementById('ecall').href='tel:'+C.app.emergencyNumber;
-  openS('e');
-}
-function showM(){
-  const pal=['#E91E63','#43A047','#5D9CEC','#8E24AA'];
-  document.getElementById('mbody').innerHTML=C.markets.map((mk,i)=>{
-    const c=pal[i%4],url=`https://www.google.com/maps/dir/?api=1&destination=${mk.lat},${mk.lng}&travelmode=driving`;
-    return`<div class="mc" style="border-left-color:${c}"><div class="row"><div class="mi" style="background:${c}20"><span class="ms" style="color:${c}">storefront</span></div><div style="flex:1"><div class="mn">${mk.name}</div><div class="md"><span class="ms" style="font-size:14px;vertical-align:middle">location_on</span> ${mk.distanceKm} กม.</div><div class="mt">${mk.detail}</div><a class="mnav" href="${url}" target="_blank"><span class="ms" style="font-size:14px;vertical-align:middle">navigation</span> นำทางไป Google Maps</a></div></div></div>`;
-  }).join('');
-  openS('m');
-}
-function showP(la,lo){
-  const ic=LI[la.id]||'place',url=`https://www.google.com/maps/dir/?api=1&destination=${lo.lat},${lo.lng}&travelmode=driving`;
-  document.getElementById('pbody').innerHTML=`<div class="pc"><div class="pci" style="background:${la.color}"><span class="ms">${ic}</span></div><span class="pcn">${la.name}</span></div><div class="pn">${lo.name}</div><div class="pd">${lo.detail}</div><a class="pnb" href="${url}" target="_blank"><span class="ms" style="vertical-align:middle;margin-right:6px">navigation</span> นำทางไป Google Maps</a>`;
-  openS('p');
 }
 
-// Events
-document.getElementById('menuBtn').onclick=openD;
-document.getElementById('dclose').onclick=closeD;
-document.getElementById('dov').onclick=closeD;
-document.getElementById('fab').onclick=showE;
-['e','m','p'].forEach(n=>document.getElementById(n+'ov').onclick=()=>closeS(n));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeD();closeAll()}});
+function runShortcut(id) {
+  const sc = C.shortcuts.find(s => s.id === id);
+  if (!sc) return;
+  if (sc.action === 'markets') showMarkets();
+  else if (sc.action === 'emergency') showEmergency();
+  else if (sc.action === 'toggleLayer' && sc.layerId) toggleLayer(sc.layerId);
+  else if (sc.action === 'layerList' && sc.layerId) showLayerList(sc.layerId);
+}
 
-// Init
-(async()=>{
-  await loadCfg();
-  await new Promise(r=>setTimeout(r,2000));
-  document.getElementById('splash').classList.add('hide');
-  buildD();buildB();initMap();
+/* ===== ค้นหา ===== */
+function searchIndex() {
+  const out = [];
+  C.layers.forEach(l => l.locations.forEach(loc =>
+    out.push({name: loc.name, category: l.name, color: l.color, icon: l.icon, lat: loc.lat, lng: loc.lng, layer: l, loc})));
+  C.markets.forEach(mk =>
+    out.push({name: mk.name, category: 'ตลาดใกล้มหาวิทยาลัย', color: '#E91E63', icon: mk.icon || 'storefront', lat: mk.lat, lng: mk.lng, market: mk}));
+  return out;
+}
+
+function onSearch(query) {
+  const box = $('sresults'), q = query.trim().toLowerCase();
+  if (!q) { box.classList.remove('on'); box.innerHTML = ''; searchHits = []; return; }
+  searchHits = searchIndex().filter(r => r.name.toLowerCase().includes(q)).slice(0, 8);
+  box.innerHTML = searchHits.length
+    ? searchHits.map((r, i) => `<div class="sri" data-hit="${i}">
+        <span class="si" style="background:${esc(r.color)}"><span class="ms">${esc(icon(r.icon))}</span></span>
+        <span><span class="nm">${esc(r.name)}</span><br><span class="ct">${esc(r.category)}</span></span></div>`).join('')
+    : `<div class="sempty">ไม่พบสถานที่ที่ตรงกับ "${esc(query.trim())}"</div>`;
+  box.classList.add('on');
+}
+
+function pickSearchHit(hit) {
+  if (!hit) return;
+  $('sbox').value = '';
+  $('sresults').classList.remove('on');
+  searchHits = [];
+  map.setView([hit.lat, hit.lng], 18);
+  if (hit.market) showMarket(hit.market);
+  else showPlace(hit.layer, hit.loc);
+}
+
+/* ===== bottom sheets ===== */
+function openSheet(key) { closeAllSheets(); $(key + 'ov').classList.add('on'); $(key + 'sh').classList.add('on'); }
+function closeSheet(key) { $(key + 'ov').classList.remove('on'); $(key + 'sh').classList.remove('on'); }
+function closeAllSheets() { ['e', 'm', 'p', 'l'].forEach(closeSheet); }
+
+/* 6. โทรฉุกเฉิน */
+function showEmergency() {
+  const num = C.app.emergencyNumber;
+  $('etitle').textContent = C.app.emergencyTitle || 'เบอร์ฉุกเฉิน';
+  $('eph').textContent = fmtPhone(num);
+  $('eds').textContent = C.app.emergencyLabel || '';
+  $('ecall').href = 'tel:' + num;
+  openSheet('e');
+}
+
+/* 4. รายชื่อตลาด */
+function showMarkets() {
+  $('mbody').innerHTML = C.markets.map((mk, i) => `
+    <div class="mc" data-market="${i}">
+      <span class="mi" style="background:#E91E6318"><span class="ms" style="color:#E91E63">${esc(icon(mk.icon || 'storefront'))}</span></span>
+      <span class="mtext">
+        <span class="mn">${esc(mk.name)}</span>
+        <span class="meta"><span><span class="ms">location_on</span>${esc(mk.distanceKm)} กม.</span><span><span class="ms">directions_walk</span>ประมาณ ${walkMin(mk.distanceKm)} นาที</span></span>
+        <span class="mt">${esc(mk.detail)}</span>
+      </span>
+      <span class="ms">chevron_right</span>
+    </div>`).join('')
+    + `<button class="allbtn" id="allMarkets"><span class="ms">map</span> ดูเส้นทางทั้งหมดบนแผนที่</button>`;
+  openSheet('m');
+}
+
+/* 5. รายละเอียดตลาด */
+function showMarket(mk) {
+  $('ptitle').textContent = 'ตลาดใกล้มหาวิทยาลัย';
+  $('pbody').innerHTML = `
+    <div class="dhero">
+      <span class="si" style="background:#E91E63;width:44px;height:44px"><span class="ms" style="font-size:24px">${esc(icon(mk.icon || 'storefront'))}</span></span>
+      <span><span class="dname">${esc(mk.name)}</span>
+      <span class="meta"><span><span class="ms">location_on</span>${esc(mk.distanceKm)} กม.</span></span></span>
+    </div>
+    <div class="ddetail">${esc(mk.detail)}</div>
+    <div class="drow">
+      <a class="dbtn primary" href="${dirUrl(mk.lat, mk.lng)}" target="_blank" rel="noopener noreferrer"><span class="ms">navigation</span> นำทาง</a>
+      <button class="dbtn ghost" data-share="${esc(mk.name)}|${mk.lat}|${mk.lng}"><span class="ms">share</span> แชร์</button>
+    </div>
+    <div class="dsub">เส้นทาง</div>
+    <div class="chips">
+      <span class="chip"><span class="ms">directions_car</span>ขับรถ <b>${driveMin(mk.distanceKm)} นาที</b> (${esc(mk.distanceKm)} กม.)</span>
+      <span class="chip"><span class="ms">directions_walk</span>เดิน <b>${walkMin(mk.distanceKm)} นาที</b> (${esc(mk.distanceKm)} กม.)</span>
+    </div>`;
+  openSheet('p');
+}
+
+/* 2. รายละเอียดจุดบนแผนที่ */
+function showPlace(layer, loc) {
+  $('ptitle').textContent = layer.name;
+  $('pbody').innerHTML = `
+    <div class="dhero">
+      <span class="si" style="background:${esc(layer.color)};width:44px;height:44px"><span class="ms" style="font-size:24px">${esc(icon(layer.icon))}</span></span>
+      <span><span class="dname">${esc(loc.name)}</span>
+      <span class="meta"><span>${esc(layer.name)}</span></span></span>
+    </div>
+    <div class="ddetail">${esc(loc.detail)}</div>
+    <div class="drow">
+      <a class="dbtn primary" href="${dirUrl(loc.lat, loc.lng)}" target="_blank" rel="noopener noreferrer"><span class="ms">navigation</span> นำทางไป Google Maps</a>
+      <button class="dbtn ghost" data-share="${esc(loc.name)}|${loc.lat}|${loc.lng}"><span class="ms">share</span> แชร์</button>
+    </div>`;
+  openSheet('p');
+}
+
+/* 7/8. รายการจุดทั้งหมดของชั้นข้อมูลหนึ่ง ๆ */
+function showLayerList(layerId) {
+  const layer = layerById(layerId);
+  if (!layer) return;
+  $('ltitle').textContent = layer.listTitle || layer.name;
+  $('lbody').innerHTML = layer.locations.map((loc, i) => `
+    <button class="lrow" data-point="${esc(layerId)}|${i}">
+      <span class="lnum">${i + 1}.</span>
+      <span class="lname">${esc(loc.name)}<small>${esc(loc.detail)}</small></span>
+      <span class="ms">chevron_right</span>
+    </button>`).join('');
+  openSheet('l');
+}
+
+function focusPoint(layerId, index) {
+  const layer = layerById(layerId);
+  const loc = layer?.locations[index];
+  if (!loc) return;
+  if (!layer.enabled) toggleLayer(layerId);   // เปิดชั้นข้อมูลให้อัตโนมัติเมื่อเลือกจุดในนั้น
+  map.setView([loc.lat, loc.lng], 18);
+  showPlace(layer, loc);
+}
+
+/* ===== ตำแหน่งผู้ใช้ ===== */
+function locateMe() {
+  if (!navigator.geolocation) {
+    alert('เบราว์เซอร์นี้ไม่รองรับการอ่านตำแหน่ง');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const p = [pos.coords.latitude, pos.coords.longitude];
+      if (meMarker) map.removeLayer(meMarker);
+      meMarker = L.circleMarker(p, {radius: 9, color: '#fff', weight: 3, fillColor: '#1976D2', fillOpacity: 1}).addTo(map);
+      map.setView(p, 17);
+    },
+    () => alert('ไม่สามารถอ่านตำแหน่งของคุณได้ กรุณาอนุญาตการเข้าถึงตำแหน่งในเบราว์เซอร์'),
+    {enableHighAccuracy: true, timeout: 8000}
+  );
+}
+
+/* ===== การผูก event (ใช้ delegation แทน inline onclick) ===== */
+function wireEvents() {
+  const openDrawer = () => { $('dov').classList.add('on'); $('drawer').classList.add('on'); };
+  const closeDrawer = () => { $('dov').classList.remove('on'); $('drawer').classList.remove('on'); };
+
+  $('menuBtn').onclick = openDrawer;
+  $('dclose').onclick = closeDrawer;
+  $('dov').onclick = closeDrawer;
+  $('fab').onclick = showEmergency;
+  $('locBtn').onclick = locateMe;
+  $('homeBtn').onclick = () => map.setView([C.map.center.lat, C.map.center.lng], C.map.zoom);
+  $('sbox').addEventListener('input', e => onSearch(e.target.value));
+
+  ['e', 'm', 'p', 'l'].forEach(k => { $(k + 'ov').onclick = () => closeSheet(k); });
+
+  document.addEventListener('click', e => {
+    const el = sel => e.target.closest(sel);
+
+    const back = el('[data-close]');
+    if (back) return closeSheet(back.dataset.close);
+
+    const sc = el('[data-shortcut]');
+    if (sc) return runShortcut(sc.dataset.shortcut);
+
+    const tog = el('input[data-layer-toggle]');
+    if (tog) return toggleLayer(tog.dataset.layerToggle);
+
+    const list = el('[data-layer-list]');
+    if (list) { closeDrawer(); return showLayerList(list.dataset.layerList); }
+
+    const pt = el('[data-point]');
+    if (pt) { const [id, i] = pt.dataset.point.split('|'); return focusPoint(id, Number(i)); }
+
+    const mk = el('[data-market]');
+    if (mk) return showMarket(C.markets[Number(mk.dataset.market)]);
+
+    if (el('#allMarkets')) return showAllMarketsOnMap();
+
+    const sh = el('[data-share]');
+    if (sh) {
+      const [name, lat, lng] = sh.dataset.share.split('|');
+      const url = dirUrl(lat, lng);
+      if (navigator.share) navigator.share({title: name, text: `${name} — TSU Smart Map`, url}).catch(() => {});
+      else navigator.clipboard?.writeText(`${name}\n${url}`).then(() => alert('คัดลอกลิงก์แล้ว'), () => {});
+      return;
+    }
+
+    const hit = el('[data-hit]');
+    if (hit) return pickSearchHit(searchHits[Number(hit.dataset.hit)]);
+
+    if (!el('.search-wrap') && !el('#sresults')) $('sresults').classList.remove('on');
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeDrawer(); closeAllSheets(); $('sresults').classList.remove('on'); }
+  });
+}
+
+/* ===== เริ่มทำงาน ===== */
+(async () => {
+  await loadConfig();
+  $('spCampus').textContent = C.app.campusName;
+  $('spTag').textContent = C.app.tagline ? `"${C.app.tagline}"` : '';
+  $('fabLabel').innerHTML = `เบอร์ฉุกเฉิน<br>${esc(fmtPhone(C.app.emergencyNumber))}`;
+  buildDrawer();
+  buildShortcutBar();
+  wireEvents();
+  await new Promise(r => setTimeout(r, 1800));
+  $('splash').classList.add('hide');
+  initMap();
+  setTimeout(() => map.invalidateSize(), 550);
 })();
 </script>
 </body>

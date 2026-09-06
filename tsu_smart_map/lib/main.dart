@@ -9,15 +9,24 @@ void main() {
 class TSUSmartMapApp extends StatelessWidget {
   const TSUSmartMapApp({super.key});
 
+  /// ธีมสีหลักตาม requirement ข้อ 5
+  static const Color primary = Color(0xFF0D47A1);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'TSU Smart Map',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color(0xFF0D47A1),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D47A1)),
         useMaterial3: true,
+        primaryColor: primary,
+        colorScheme: ColorScheme.fromSeed(seedColor: primary),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
       home: const SplashScreen(),
     );

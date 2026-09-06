@@ -3,19 +3,32 @@
     "name": "TSU Smart Map",
     "campusName": "มหาวิทยาลัยทักษิณ วิทยาเขตพัทลุง",
     "emergencyNumber": "0928733748",
-    "emergencyLabel": "เบอร์ฉุกเฉิน (รถเสีย / อุบัติเหตุ)"
+    "emergencyLabel": "สำหรับรถเสีย / อุบัติเหตุ ภายใน ม.ทักษิณ พัทลุง",
+    "tagline": "เดินทางสะดวก ปลอดภัย ใกล้คุณ",
+    "emergencyTitle": "เบอร์ฉุกเฉิน"
   },
   "map": {
-    "center": { "lat": 7.80822, "lng": 99.93869 },
+    "center": {
+      "lat": 7.80822,
+      "lng": 99.93869
+    },
     "zoom": 16,
     "minZoom": 12,
-    "maxZoom": 19
+    "maxZoom": 19,
+    "travel": {
+      "walkKmh": 4.5,
+      "driveKmh": 30
+    }
   },
   "layers": [
     {
       "id": "tram",
       "name": "จุดรถราง",
       "emoji": "🚎",
+      "icon": "directions_bus",
+      "description": "ศาลาที่จอดรถราง",
+      "listTitle": "จุดจอดรถรางทั้งหมด",
+      "group": "ประเภทสถานที่",
       "enabled": true,
       "color": "#1E88E5",
       "locations": [
@@ -49,6 +62,10 @@
       "id": "fuel",
       "name": "จุดเติมน้ำมัน",
       "emoji": "⛽",
+      "icon": "local_gas_station",
+      "description": "ปั๊มน้ำมันสวัสดิการ / จุดเติมใกล้เคียง",
+      "listTitle": "จุดเติมน้ำมันทั้งหมด",
+      "group": "ประเภทสถานที่",
       "enabled": true,
       "color": "#43A047",
       "locations": [
@@ -70,6 +87,10 @@
       "id": "scooter",
       "name": "จุดสกู๊ตเตอร์",
       "emoji": "🛴",
+      "icon": "electric_scooter",
+      "description": "จอด / เช่าสกู๊ตเตอร์ไฟฟ้า",
+      "listTitle": "จุดจอด/เช่าสกู๊ตเตอร์ไฟฟ้า",
+      "group": "ประเภทสถานที่",
       "enabled": true,
       "color": "#FB8C00",
       "locations": [
@@ -88,7 +109,7 @@
         {
           "name": "จุดจอดสกู๊ตเตอร์ สนามกีฬา",
           "lat": 7.80742,
-          "lng": 99.94050,
+          "lng": 99.9405,
           "detail": "จุดจอดบริเวณทางเข้าสนามกีฬากลาง"
         }
       ]
@@ -97,13 +118,17 @@
       "id": "caution",
       "name": "จุดควรระมัดระวัง",
       "emoji": "⚠️",
+      "icon": "warning",
+      "description": "ทางแยกอุบัติเหตุบ่อย หรือไฟส่องสว่างน้อย",
+      "listTitle": "จุดควรระมัดระวังทั้งหมด",
+      "group": "ประเภทสถานที่",
       "enabled": true,
       "color": "#E53935",
       "locations": [
         {
           "name": "ทางแยกหน้าประตูมหาวิทยาลัย",
           "lat": 7.80766,
-          "lng": 99.93970,
+          "lng": 99.9397,
           "detail": "ทางแยกที่เกิดอุบัติเหตุบ่อย โปรดชะลอความเร็ว"
         },
         {
@@ -124,27 +149,30 @@
   "markets": [
     {
       "name": "ตลาดนัดหน้ามอ",
-      "lat": 7.80760,
-      "lng": 99.94030,
+      "lat": 7.8076,
+      "lng": 99.9403,
       "detail": "ตลาดนัดปากทางเข้าวิทยาเขตพัทลุง เปิดทุกเย็นวันพุธ",
       "distanceKm": 0.4,
-      "emoji": "🏪"
+      "emoji": "🏪",
+      "icon": "storefront"
     },
     {
       "name": "ตลาดป่าพะยอม",
-      "lat": 7.83410,
-      "lng": 99.94310,
+      "lat": 7.8341,
+      "lng": 99.9431,
       "detail": "ตลาดสดประจำอำเภอป่าพะยอม ห่างจากมหาวิทยาลัยประมาณ 4 กม.",
       "distanceKm": 4.0,
-      "emoji": "🛒"
+      "emoji": "🛒",
+      "icon": "storefront"
     },
     {
       "name": "ตลาดบ้านพร้าว",
-      "lat": 7.80230,
-      "lng": 99.93320,
+      "lat": 7.8023,
+      "lng": 99.9332,
       "detail": "ตลาดสดในย่านบ้านพร้าว ใกล้กับแนวถนนสายหลัก",
       "distanceKm": 1.5,
-      "emoji": "🥬"
+      "emoji": "🥬",
+      "icon": "storefront"
     }
   ],
   "shortcuts": [
