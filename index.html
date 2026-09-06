@@ -5,7 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TSU Smart Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal; font-style: normal;
+  font-size: 24px; line-height: 1;
+  display: inline-block; letter-spacing: normal;
+  white-space: nowrap; word-wrap: normal;
+  direction: ltr; -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+</style>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
@@ -24,7 +38,8 @@ body {
 }
 #splash.fade-out { opacity: 0; pointer-events: none; }
 .splash-content { text-align: center; color: #fff; }
-.splash-logo { font-size: 96px; animation: splashBounce 1.4s ease-in-out infinite; }
+.splash-logo { font-size: 96px; animation: splashBounce 1.4s ease-in-out infinite; color: #fff; }
+.splash-logo .material-symbols-rounded { font-size: 96px; }
 .splash-title { font-size: 36px; font-weight: 800; letter-spacing: 2px; margin-top: 14px; line-height: 1.2; }
 .splash-sub { font-size: 16px; opacity: 0.92; margin-top: 8px; }
 @keyframes splashBounce {
@@ -48,6 +63,7 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; font-size: 20px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
+#menu-btn .material-symbols-rounded { font-size: 24px; color: #0D47A1; }
 #search-box {
   flex: 1; height: 42px; border: none; border-radius: 21px; padding: 0 16px 0 42px;
   font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); outline: none;
@@ -86,7 +102,8 @@ body {
   0%, 100% { box-shadow: 0 4px 14px rgba(229,57,53,0.5); }
   50% { box-shadow: 0 4px 24px rgba(229,57,53,0.8); }
 }
-#fab-emergency .phone { font-size: 20px; }
+#fab-emergency .phone { font-size: 22px; }
+#fab-emergency .phone .material-symbols-rounded { font-size: 24px; }
 
 /* ── Bottom Bar ── */
 #bottombar {
@@ -103,8 +120,9 @@ body {
 }
 .shortcut-circle {
   width: 46px; height: 46px; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; font-size: 22px;
+  align-items: center; justify-content: center; font-size: 22px; font-weight: 600;
 }
+.shortcut-circle .material-symbols-rounded { font-size: 26px; }
 .shortcut-label { font-size: 11px; font-weight: 700; white-space: nowrap; }
 
 /* ── Drawer (slide from left, app-style) ── */
@@ -136,6 +154,7 @@ body {
   border-radius: 12px; margin-bottom: 6px;
 }
 .layer-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; flex-shrink: 0; }
+.layer-icon .material-symbols-rounded { font-size: 22px; color: #fff; }
 .layer-info { flex: 1; }
 .layer-name { font-weight: 600; font-size: 14px; }
 .layer-desc { font-size: 11px; color: #888; margin-top: 2px; }
@@ -198,6 +217,7 @@ body {
 /* Place info sheet */
 .place-category { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .place-cat-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.place-cat-icon .material-symbols-rounded { font-size: 22px; color: #fff; }
 .place-cat-name { font-size: 12px; color: #888; }
 .place-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
 .place-detail { font-size: 14px; color: #555; margin-bottom: 18px; line-height: 1.5; }
@@ -216,7 +236,7 @@ body {
 <!-- Splash -->
 <div id="splash">
   <div class="splash-content">
-    <div class="splash-logo">🗺️</div>
+    <div class="splash-logo"><span class="material-symbols-rounded">map</span></div>
     <div class="splash-title">TSU<br>Smart Map</div>
     <div class="splash-sub">แผนที่อัจฉริยะ ม.ทักษิณ พัทลุง</div>
   </div>
@@ -228,14 +248,14 @@ body {
 
   <!-- Top bar -->
   <div id="topbar">
-    <button id="menu-btn">☰</button>
+    <button id="menu-btn"><span class="material-symbols-rounded">menu</span></button>
     <input id="search-box" type="text" placeholder="ค้นหาสถานที่ ภายใน ม.ทักษิณ...">
   </div>
   <div id="search-results"></div>
 
   <!-- FAB -->
   <button id="fab-emergency">
-    <span class="phone">📞</span>
+    <span class="phone"><span class="material-symbols-rounded">phone_in_talk</span></span>
     <span>เบอร์ฉุกเฉิน<br><span id="fab-phone"></span></span>
   </button>
 
@@ -261,7 +281,7 @@ body {
   <div id="emergency-sheet" class="sheet">
     <div class="grabber"></div>
     <div class="emergency-content">
-      <div class="phone-icon">📞</div>
+      <div class="phone-icon"><span class="material-symbols-rounded" style="font-size:72px;color:#fff;">phone_in_talk</span></div>
       <div class="phone-label">โทรออกทันที</div>
       <div class="phone-number" id="modal-phone"></div>
       <div class="phone-desc" id="modal-phone-desc"></div>
@@ -293,6 +313,25 @@ const LAYER_DESC = {
   scooter: 'จอด / เช่าสกู๊ตเตอร์ไฟฟ้า',
   caution: 'ทางแยกอุบัติเหตุบ่อย',
 };
+
+const LAYER_ICON = {
+  tram: 'directions_bus',
+  fuel: 'local_gas_station',
+  scooter: 'electric_scooter',
+  caution: 'warning_amber',
+};
+
+function iconName(sc) {
+  switch (sc.icon) {
+    case 'storefront': return 'storefront';
+    case 'phone_in_talk': return 'phone_in_talk';
+    case 'directions_bus': return 'directions_bus';
+    case 'local_gas_station': return 'local_gas_station';
+    case 'electric_scooter': return 'electric_scooter';
+    case 'warning': return 'warning_amber';
+    default: return 'place';
+  }
+}
 
 const EMBEDDED_CONFIG = {
   "app": {
@@ -368,11 +407,14 @@ function initMap() {
 }
 
 function markerIcon(layer, loc) {
+  const iconName = LAYER_ICON[layer.id] || 'place';
   return L.divIcon({
     className: '',
     html: `
       <div style="text-align:center;">
-        <div style="background:#fff;border-radius:50%;padding:4px 5px;box-shadow:0 1px 4px rgba(0,0,0,.3);display:inline-block;font-size:16px;">${layer.emoji}</div>
+        <div style="background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,.35);display:inline-block;line-height:0;">
+          <span class="material-symbols-rounded" style="font-size:20px;color:${layer.color};">${iconName}</span>
+        </div>
         <div style="background:${layer.color};color:#fff;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap;margin-top:1px;box-shadow:0 1px 3px rgba(0,0,0,.2);">${loc.name}</div>
       </div>`,
     iconSize: [150, 40], iconAnchor: [75, 40],
@@ -413,7 +455,7 @@ function buildDrawer() {
     const div = document.createElement('div');
     div.className = 'layer-item';
     div.innerHTML = `
-      <div class="layer-icon" style="background:${layer.color}">${layer.emoji}</div>
+      <div class="layer-icon" style="background:${layer.color}"><span class="material-symbols-rounded">${LAYER_ICON[layer.id] || 'place'}</span></div>
       <div class="layer-info">
         <div class="layer-name">${layer.name}</div>
         <div class="layer-desc">${LAYER_DESC[layer.id] || ''}</div>
@@ -440,7 +482,7 @@ function buildBottomBar() {
     const isActive = sc.action === 'toggleLayer' && sc.layerId && CONFIG.layers.find(l => l.id === sc.layerId)?.enabled;
     btn.className = 'shortcut-btn';
     btn.innerHTML = `
-      <div class="shortcut-circle" style="background:${isActive ? sc.color : sc.color + '22'}; color:${isActive ? '#fff' : sc.color}">${sc.icon}</div>
+      <div class="shortcut-circle" style="background:${isActive ? sc.color : sc.color + '22'}; color:${isActive ? '#fff' : sc.color}"><span class="material-symbols-rounded">${iconName(sc)}</span></div>
       <span class="shortcut-label">${sc.label}</span>`;
     btn.onclick = () => runShortcut(sc);
     bar.appendChild(btn);
@@ -454,21 +496,27 @@ function runShortcut(sc) {
 }
 
 // ── Search ──
+function searchIconName(r) {
+  if (r.cat === 'ตลาด') return 'storefront';
+  const layer = CONFIG.layers.find(l => l.name === r.cat);
+  return layer ? (LAYER_ICON[layer.id] || 'place') : 'place';
+}
+
 function onSearch(q) {
   const box = document.getElementById('search-results');
   q = q.trim().toLowerCase();
   if (!q) { box.classList.remove('active'); box.innerHTML = ''; return; }
   const results = [];
   CONFIG.layers.forEach(layer => layer.locations.forEach(loc => {
-    if (loc.name.toLowerCase().includes(q)) results.push({ name: loc.name, cat: layer.name, emoji: layer.emoji, lat: loc.lat, lng: loc.lng });
+    if (loc.name.toLowerCase().includes(q)) results.push({ name: loc.name, cat: layer.name, color: layer.color, lat: loc.lat, lng: loc.lng });
   }));
   CONFIG.markets.forEach(mk => {
-    if (mk.name.toLowerCase().includes(q)) results.push({ name: mk.name, cat: 'ตลาด', emoji: mk.emoji, lat: mk.lat, lng: mk.lng });
+    if (mk.name.toLowerCase().includes(q)) results.push({ name: mk.name, cat: 'ตลาด', color: '#43A047', lat: mk.lat, lng: mk.lng });
   });
   if (!results.length) { box.classList.remove('active'); box.innerHTML = ''; return; }
   box.innerHTML = results.slice(0, 8).map(r =>
     `<div class="search-item" onclick="selectPlace(${r.lat},${r.lng})">
-      <span class="icon">${r.emoji}</span>
+      <span class="icon" style="width:32px;height:32px;border-radius:50%;background:${r.color};color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:18px;color:#fff;">${searchIconName(r)}</span></span>
       <div><div class="name">${r.name}</div><div class="cat">${r.cat}</div></div>
     </div>`).join('');
   box.classList.add('active');
@@ -492,15 +540,18 @@ function showMarkets() {
   const body = document.getElementById('markets-body');
   body.innerHTML = CONFIG.markets.map((mk, i) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${mk.lat},${mk.lng}&travelmode=driving`;
+    const color = palette[i % palette.length];
     return `
-      <div class="market-card" style="border-left-color:${palette[i % palette.length]}">
+      <div class="market-card" style="border-left-color:${color}">
         <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:32px;">${mk.emoji}</span>
+          <div style="width:44px;height:44px;border-radius:10px;background:${color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-rounded" style="font-size:24px;color:${color};">storefront</span>
+          </div>
           <div style="flex:1;">
             <div class="market-name">${mk.name}</div>
-            <div class="market-dist">📍 ${mk.distanceKm} กม.</div>
+            <div class="market-dist"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">location_on</span> ${mk.distanceKm} กม.</div>
             <div class="market-detail">${mk.detail}</div>
-            <a class="market-nav" href="${url}" target="_blank">📍 นำทางไป Google Maps →</a>
+            <a class="market-nav" href="${url}" target="_blank"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">navigation</span> นำทางไป Google Maps</a>
           </div>
         </div>
       </div>`;
@@ -509,14 +560,15 @@ function showMarkets() {
 }
 function showPlace(layer, loc) {
   const url = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=driving`;
+  const iconName = LAYER_ICON[layer.id] || 'place';
   document.getElementById('place-body').innerHTML = `
     <div class="place-category">
-      <div class="place-cat-icon" style="background:${layer.color}">${layer.emoji}</div>
+      <div class="place-cat-icon" style="background:${layer.color}"><span class="material-symbols-rounded">${iconName}</span></div>
       <span class="place-cat-name">${layer.name}</span>
     </div>
     <div class="place-name">${loc.name}</div>
     <div class="place-detail">${loc.detail}</div>
-    <a class="place-nav-btn" href="${url}" target="_blank">📍 นำทางไป Google Maps</a>`;
+    <a class="place-nav-btn" href="${url}" target="_blank"><span class="material-symbols-rounded" style="vertical-align:middle;margin-right:6px;">navigation</span> นำทางไป Google Maps</a>`;
   openSheet('place');
 }
 
